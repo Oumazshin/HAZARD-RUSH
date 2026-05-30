@@ -1,0 +1,17 @@
+# Godot 4+ specific ignores
+.godot/
+*.translation
+
+# GDExtension and C++ build artifacts
+bin/*
+!bin/*.gdextension
+*.o
+*.obj
+*.os
+*.dylib
+*.dll
+*.so
+
+# OS specific
+.DS_Store
+Thumbs.db
