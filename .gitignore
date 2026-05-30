@@ -1,0 +1,12 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+*.tmp
+
+# C++ and Export binaries
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+*.pck

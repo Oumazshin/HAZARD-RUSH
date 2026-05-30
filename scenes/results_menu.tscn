@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://csnoilnbpgdrq"]
+
+[ext_resource type="Script" uid="uid://cs4j64nyggei0" path="res://scripts/results_menu.gd" id="1_kqyoe"]
+
+[node name="ResultsMenu" type="CanvasLayer" unique_id=273355355]
+script = ExtResource("1_kqyoe")
+
+[node name="Panel" type="Panel" parent="." unique_id=1161965115]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -326.0
+offset_top = -244.0
+offset_right = 423.0
+offset_bottom = 231.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="FinalTimeLabel" type="Label" parent="Panel" unique_id=587949879]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 180.0
+offset_top = 61.0
+offset_right = 563.5
+offset_bottom = 148.5
+theme_override_colors/font_color = Color(0.8399999, 0.9, 0, 1)
+theme_override_font_sizes/font_size = 42
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Button" type="Button" parent="Panel" unique_id=1479489133]
+layout_mode = 0
+offset_left = 75.0
+offset_top = 320.0
+offset_right = 235.0
+offset_bottom = 370.0
+text = "Restart"
+
+[node name="QuitButton" type="Button" parent="Panel" unique_id=1462211801]
+layout_mode = 0
+offset_left = 500.0
+offset_top = 320.0
+offset_right = 660.0
+offset_bottom = 370.0
+text = "Quit"
+
+[connection signal="pressed" from="Panel/Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="Panel/QuitButton" to="." method="_on_quit_button_pressed"]
