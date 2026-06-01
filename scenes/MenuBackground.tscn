@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://dnqx8x832524m"]
+
+[ext_resource type="Script" uid="uid://doo5cspbvkfuy" path="res://scenes/background_images.gd" id="2_6o1am"]
+[ext_resource type="Texture2D" uid="uid://d1xy5014k2j8c" path="res://assets/BACKGROUND - Start Menu/1.png" id="2_ofmj3"]
+[ext_resource type="Texture2D" uid="uid://bphap3rb1psai" path="res://assets/BACKGROUND - Start Menu/2.png" id="3_6o1am"]
+[ext_resource type="Texture2D" uid="uid://cecyisrnewo5e" path="res://assets/BACKGROUND - Start Menu/3.png" id="4_v5i0w"]
+[ext_resource type="Texture2D" uid="uid://b56g8cpygcpyl" path="res://assets/BACKGROUND - Start Menu/4.png" id="5_hjpu2"]
+
+[node name="MenuBackground" type="Control" unique_id=645109148]
+z_index = -100
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BackgroundImages" type="ParallaxBackground" parent="." unique_id=1848692837]
+script = ExtResource("2_6o1am")
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="BackgroundImages" unique_id=449972186]
+scale = Vector2(2, 2)
+motion_scale = Vector2(0.1, 0.1)
+motion_mirroring = Vector2(1920, 1080)
+
+[node name="Sprite2D" type="Sprite2D" parent="BackgroundImages/ParallaxLayer" unique_id=1798338513]
+scale = Vector2(1.8, 1.8)
+texture = ExtResource("2_ofmj3")
+centered = false
+
+[node name="ParallaxLayer2" type="ParallaxLayer" parent="BackgroundImages" unique_id=1722044017]
+scale = Vector2(2, 2)
+motion_scale = Vector2(0.4, 0.4)
+motion_mirroring = Vector2(1920, 1080)
+
+[node name="Sprite2D" type="Sprite2D" parent="BackgroundImages/ParallaxLayer2" unique_id=450547723]
+scale = Vector2(1.8, 1.8)
+texture = ExtResource("3_6o1am")
+centered = false
+
+[node name="ParallaxLayer3" type="ParallaxLayer" parent="BackgroundImages" unique_id=194007119]
+scale = Vector2(2, 2)
+motion_scale = Vector2(0.7, 0.7)
+motion_mirroring = Vector2(1920, 1080)
+
+[node name="Sprite2D" type="Sprite2D" parent="BackgroundImages/ParallaxLayer3" unique_id=1444639351]
+scale = Vector2(1.8, 1.8)
+texture = ExtResource("4_v5i0w")
+centered = false
+
+[node name="ParallaxLayer4" type="ParallaxLayer" parent="BackgroundImages" unique_id=913329769]
+scale = Vector2(2, 2)
+motion_mirroring = Vector2(1920, 1080)
+
+[node name="Sprite2D" type="Sprite2D" parent="BackgroundImages/ParallaxLayer4" unique_id=1226587404]
+scale = Vector2(1.8, 1.8)
+texture = ExtResource("5_hjpu2")
+centered = false

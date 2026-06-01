@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://bd6ashnfe7bnl"]
+
+[ext_resource type="Script" uid="uid://bnbmqb635r148" path="res://scripts/warning_indicator.gd" id="1_01htq"]
+
+[node name="root" type="Node2D" unique_id=100008641]
+script = ExtResource("1_01htq")
+
+[node name="WarningSprite" type="AnimatedSprite2D" parent="." unique_id=1751273105]
+texture_filter = 1

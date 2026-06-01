@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://6yvdopv5kow4"]
+
+[ext_resource type="Script" uid="uid://dwkuidompvp2k" path="res://scripts/results_screen.gd" id="1_sf3t5"]
+
+[node name="ResultsScreen" type="CanvasLayer" unique_id=2078342325]
+script = ExtResource("1_sf3t5")

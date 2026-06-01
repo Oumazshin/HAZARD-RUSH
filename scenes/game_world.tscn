@@ -1,16 +1,19 @@
-[gd_scene format=4 uid="uid://rqwmlyj7lgyb"]
+[gd_scene format=4 uid="uid://drk6vbedm2vgh"]
 
 [ext_resource type="Script" uid="uid://orh5hiqhb8bi" path="res://scripts/parallax_controller.gd" id="1_ph1f2"]
 [ext_resource type="PackedScene" uid="uid://c8ifuvu5oag5l" path="res://scenes/player.tscn" id="1_wbbl4"]
-[ext_resource type="Texture2D" uid="uid://be2pfweq3spa7" path="res://assets/environment/terrain/Terrain (16x16).png" id="2_6c6v5"]
+[ext_resource type="Texture2D" uid="uid://be2pfweq3spa7" path="res://assets/environment/Decorations/Terrain (16x16).png" id="2_6c6v5"]
 [ext_resource type="PackedScene" uid="uid://dy6njdjii7bsm" path="res://scenes/goal.tscn" id="3_bhwwd"]
 [ext_resource type="PackedScene" uid="uid://hlyif720qqbd" path="res://scenes/SawHurdle.tscn" id="5_u1jpj"]
-[ext_resource type="Texture2D" uid="uid://qwq44hvbtac6" path="res://assets/environment/Main Background/background1.png" id="5_uh34q"]
-[ext_resource type="Texture2D" uid="uid://ccty3t3mpv2oi" path="res://assets/environment/Main Background/background2.png" id="6_ph1f2"]
-[ext_resource type="Texture2D" uid="uid://c4il67vmsx517" path="res://assets/environment/Main Background/background3.png" id="7_odt01"]
-[ext_resource type="Texture2D" uid="uid://jn3jso8ajlo6" path="res://assets/environment/Main Background/background4.png" id="8_6ll7h"]
-[ext_resource type="Script" uid="uid://ni6vrvransol" path="res://scripts/sabotage_system.gd" id="10_ph1f2"]
+[ext_resource type="Texture2D" uid="uid://qwq44hvbtac6" path="res://assets/environment/BACKGROUND - Ingame/background1.png" id="5_uh34q"]
+[ext_resource type="Texture2D" uid="uid://ccty3t3mpv2oi" path="res://assets/environment/BACKGROUND - Ingame/background2.png" id="6_ph1f2"]
+[ext_resource type="Texture2D" uid="uid://c4il67vmsx517" path="res://assets/environment/BACKGROUND - Ingame/background3.png" id="7_odt01"]
+[ext_resource type="Texture2D" uid="uid://jn3jso8ajlo6" path="res://assets/environment/BACKGROUND - Ingame/background4.png" id="8_6ll7h"]
+[ext_resource type="Script" uid="uid://tk2unjvavona" path="res://scripts/sabotage_system.gd" id="10_ph1f2"]
 [ext_resource type="PackedScene" uid="uid://clgxqi1u3qjwf" path="res://scenes/SpikeHurdle.tscn" id="10_uh34q"]
+[ext_resource type="PackedScene" uid="uid://78u2qp4x0mr" path="res://scenes/StartLine.tscn" id="12_odt01"]
+[ext_resource type="PackedScene" uid="uid://c2n1hej8gkemy" path="res://scenes/FinishLine.tscn" id="13_6ll7h"]
+[ext_resource type="PackedScene" uid="uid://b741qy0hrm7en" path="res://scenes/PowerUp.tscn" id="14_dlaip"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_o5qli"]
 distance = -200.0
@@ -217,49 +220,41 @@ offset_bottom = 8.0
 script = ExtResource("1_ph1f2")
 
 [node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground" unique_id=1950029764]
-position = Vector2(-64, -301)
 scale = Vector2(1.5, 1.5)
 motion_scale = Vector2(0, 0)
 motion_mirroring = Vector2(1920, 1920)
 
 [node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/ParallaxLayer" unique_id=1785445958]
-position = Vector2(-60, 0)
 scale = Vector2(1.9093752, 1.65625)
 texture = ExtResource("5_uh34q")
 centered = false
 
 [node name="ParallaxLayer2" type="ParallaxLayer" parent="ParallaxBackground" unique_id=301844871]
-position = Vector2(-64, -301)
 scale = Vector2(1.5, 1.5)
 motion_scale = Vector2(0, 0)
 motion_mirroring = Vector2(1920, 1920)
 
 [node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/ParallaxLayer2" unique_id=1585170176]
-position = Vector2(-59.999996, 0)
 scale = Vector2(1.9093748, 1.65625)
 texture = ExtResource("6_ph1f2")
 centered = false
 
 [node name="ParallaxLayer3" type="ParallaxLayer" parent="ParallaxBackground" unique_id=1350846736]
-position = Vector2(-64, -301)
 scale = Vector2(1.5, 1.5)
 motion_scale = Vector2(0, 0)
 motion_mirroring = Vector2(1920, 1920)
 
 [node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/ParallaxLayer3" unique_id=586110857]
-position = Vector2(-60, -56.999996)
 scale = Vector2(1.9093747, 1.8046875)
 texture = ExtResource("7_odt01")
 centered = false
 
 [node name="ParallaxLayer4" type="ParallaxLayer" parent="ParallaxBackground" unique_id=1452506619]
-position = Vector2(-64, -301)
 scale = Vector2(1.5, 1.5)
 motion_scale = Vector2(0, 0)
 motion_mirroring = Vector2(1920, 1920)
 
 [node name="Sprite2D" type="Sprite2D" parent="ParallaxBackground/ParallaxLayer4" unique_id=2006501248]
-position = Vector2(-60, 0)
 rotation = -0.0013823049
 scale = Vector2(1.909375, 1.65625)
 texture = ExtResource("8_6ll7h")
@@ -268,7 +263,7 @@ centered = false
 [node name="PlayerLane" type="Node2D" parent="." unique_id=874144362]
 
 [node name="Player" parent="PlayerLane" unique_id=733040061 node_paths=PackedStringArray("warning_ui", "timer_label") groups=["player"] instance=ExtResource("1_wbbl4")]
-position = Vector2(16, 368)
+position = Vector2(0, -332)
 warning_ui = NodePath("../../CanvasLayer/WarningUI")
 timer_label = NodePath("../../CanvasLayer/TimerLabel")
 
@@ -277,7 +272,7 @@ zoom = Vector2(2, 2)
 position_smoothing_enabled = true
 
 [node name="Floor" type="StaticBody2D" parent="PlayerLane" unique_id=1956147796]
-position = Vector2(-9, 262)
+position = Vector2(0, -438)
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PlayerLane/Floor" unique_id=1955463844]
@@ -291,69 +286,168 @@ tile_map_data = PackedByteArray("AACh/xoAAAAHAAEAAACh/xsAAAAHAAEAAACh/xwAAAAHAAE
 tile_set = SubResource("TileSet_jyhfs")
 
 [node name="Hurdles" type="Node2D" parent="PlayerLane" unique_id=2089390437]
+position = Vector2(0, -700)
 
 [node name="HighObstacles" type="Node2D" parent="PlayerLane/Hurdles" unique_id=761816857]
 position = Vector2(913, 0)
 
 [node name="SawHurdle" parent="PlayerLane/Hurdles/HighObstacles" unique_id=1455761537 instance=ExtResource("5_u1jpj")]
-position = Vector2(1198, 265)
+position = Vector2(500, 265)
+collision_layer = 1
+
+[node name="SawHurdle1" parent="PlayerLane/Hurdles/HighObstacles" unique_id=748239801 instance=ExtResource("5_u1jpj")]
+position = Vector2(1260, 265)
 collision_layer = 1
 
 [node name="SawHurdle2" parent="PlayerLane/Hurdles/HighObstacles" unique_id=1747911550 instance=ExtResource("5_u1jpj")]
-position = Vector2(3134, 265)
+position = Vector2(2400, 265)
 collision_layer = 1
 
 [node name="SawHurdle3" parent="PlayerLane/Hurdles/HighObstacles" unique_id=1606141621 instance=ExtResource("5_u1jpj")]
-position = Vector2(4902, 265)
+position = Vector2(2780, 265)
 collision_layer = 1
 
 [node name="SawHurdle4" parent="PlayerLane/Hurdles/HighObstacles" unique_id=1874985991 instance=ExtResource("5_u1jpj")]
-position = Vector2(6846, 265)
+position = Vector2(3540, 265)
 collision_layer = 1
 
 [node name="SawHurdle5" parent="PlayerLane/Hurdles/HighObstacles" unique_id=1312539782 instance=ExtResource("5_u1jpj")]
-position = Vector2(8510, 265)
+position = Vector2(4680, 265)
 collision_layer = 1
 
 [node name="SawHurdle6" parent="PlayerLane/Hurdles/HighObstacles" unique_id=314777745 instance=ExtResource("5_u1jpj")]
-position = Vector2(10318, 265)
+position = Vector2(5060, 265)
+collision_layer = 1
+
+[node name="SawHurdle7" parent="PlayerLane/Hurdles/HighObstacles" unique_id=801994228 instance=ExtResource("5_u1jpj")]
+position = Vector2(5820, 265)
+collision_layer = 1
+
+[node name="SawHurdle8" parent="PlayerLane/Hurdles/HighObstacles" unique_id=1215712091 instance=ExtResource("5_u1jpj")]
+position = Vector2(6960, 265)
+collision_layer = 1
+
+[node name="SawHurdle9" parent="PlayerLane/Hurdles/HighObstacles" unique_id=451630434 instance=ExtResource("5_u1jpj")]
+position = Vector2(7340, 265)
+collision_layer = 1
+
+[node name="SawHurdle10" parent="PlayerLane/Hurdles/HighObstacles" unique_id=1042403010 instance=ExtResource("5_u1jpj")]
+position = Vector2(8100, 265)
+collision_layer = 1
+
+[node name="SawHurdle11" parent="PlayerLane/Hurdles/HighObstacles" unique_id=1323608171 instance=ExtResource("5_u1jpj")]
+position = Vector2(8860, 265)
+collision_layer = 1
+
+[node name="SawHurdle12" parent="PlayerLane/Hurdles/HighObstacles" unique_id=559192283 instance=ExtResource("5_u1jpj")]
+position = Vector2(10000, 265)
+collision_layer = 1
+
+[node name="SawHurdle13" parent="PlayerLane/Hurdles/HighObstacles" unique_id=81113918 instance=ExtResource("5_u1jpj")]
+position = Vector2(10760, 265)
 collision_layer = 1
 
 [node name="LowObstacles" type="Node2D" parent="PlayerLane/Hurdles" unique_id=776239766]
 position = Vector2(913, 0)
 
 [node name="SpikeHurdle" parent="PlayerLane/Hurdles/LowObstacles" unique_id=1128128690 instance=ExtResource("10_uh34q")]
-position = Vector2(350, 390)
+position = Vector2(880, 390)
+collision_layer = 1
+
+[node name="SpikeHurdle1" parent="PlayerLane/Hurdles/LowObstacles" unique_id=1419032982 instance=ExtResource("10_uh34q")]
+position = Vector2(1640, 390)
 collision_layer = 1
 
 [node name="SpikeHurdle2" parent="PlayerLane/Hurdles/LowObstacles" unique_id=230790303 instance=ExtResource("10_uh34q")]
-position = Vector2(2146, 390)
+position = Vector2(2020, 390)
 collision_layer = 1
 
 [node name="SpikeHurdle3" parent="PlayerLane/Hurdles/LowObstacles" unique_id=1952919941 instance=ExtResource("10_uh34q")]
-position = Vector2(3970, 390)
+position = Vector2(3160, 390)
 collision_layer = 1
 
 [node name="SpikeHurdle4" parent="PlayerLane/Hurdles/LowObstacles" unique_id=534058200 instance=ExtResource("10_uh34q")]
-position = Vector2(5882, 390)
+position = Vector2(3920, 390)
 collision_layer = 1
 
 [node name="SpikeHurdle5" parent="PlayerLane/Hurdles/LowObstacles" unique_id=1029173587 instance=ExtResource("10_uh34q")]
-position = Vector2(7634, 390)
+position = Vector2(4300, 390)
 collision_layer = 1
 
 [node name="SpikeHurdle6" parent="PlayerLane/Hurdles/LowObstacles" unique_id=1878147125 instance=ExtResource("10_uh34q")]
-position = Vector2(9402, 390)
+position = Vector2(5440, 390)
 collision_layer = 1
 
 [node name="SpikeHurdle7" parent="PlayerLane/Hurdles/LowObstacles" unique_id=203798734 instance=ExtResource("10_uh34q")]
-position = Vector2(11026, 390)
+position = Vector2(6200, 390)
 collision_layer = 1
+
+[node name="SpikeHurdle8" parent="PlayerLane/Hurdles/LowObstacles" unique_id=1004555611 instance=ExtResource("10_uh34q")]
+position = Vector2(6580, 390)
+collision_layer = 1
+
+[node name="SpikeHurdle9" parent="PlayerLane/Hurdles/LowObstacles" unique_id=1603375534 instance=ExtResource("10_uh34q")]
+position = Vector2(7720, 390)
+collision_layer = 1
+
+[node name="SpikeHurdle10" parent="PlayerLane/Hurdles/LowObstacles" unique_id=594926994 instance=ExtResource("10_uh34q")]
+position = Vector2(8480, 390)
+collision_layer = 1
+
+[node name="SpikeHurdle11" parent="PlayerLane/Hurdles/LowObstacles" unique_id=444785933 instance=ExtResource("10_uh34q")]
+position = Vector2(9240, 390)
+collision_layer = 1
+
+[node name="SpikeHurdle12" parent="PlayerLane/Hurdles/LowObstacles" unique_id=1730978623 instance=ExtResource("10_uh34q")]
+position = Vector2(9620, 390)
+collision_layer = 1
+
+[node name="SpikeHurdle13" parent="PlayerLane/Hurdles/LowObstacles" unique_id=486350630 instance=ExtResource("10_uh34q")]
+position = Vector2(10380, 390)
+collision_layer = 1
+
+[node name="PowerUpFruit" type="Node2D" parent="PlayerLane" unique_id=1185450631]
+
+[node name="PowerUp" parent="PlayerLane/PowerUpFruit" unique_id=1663011811 instance=ExtResource("14_dlaip")]
+position = Vector2(1070, -435)
+
+[node name="PowerUp2" parent="PlayerLane/PowerUpFruit" unique_id=124154501 instance=ExtResource("14_dlaip")]
+position = Vector2(2338, -350)
+
+[node name="PowerUp3" parent="PlayerLane/PowerUpFruit" unique_id=597411825 instance=ExtResource("14_dlaip")]
+position = Vector2(3505, -435)
+
+[node name="PowerUp4" parent="PlayerLane/PowerUpFruit" unique_id=843118200 instance=ExtResource("14_dlaip")]
+position = Vector2(5017, -350)
+
+[node name="PowerUp5" parent="PlayerLane/PowerUpFruit" unique_id=69455525 instance=ExtResource("14_dlaip")]
+position = Vector2(5782, -435)
+
+[node name="PowerUp6" parent="PlayerLane/PowerUpFruit" unique_id=881167001 instance=ExtResource("14_dlaip")]
+position = Vector2(6914, -350)
+
+[node name="PowerUp7" parent="PlayerLane/PowerUpFruit" unique_id=394857213 instance=ExtResource("14_dlaip")]
+position = Vector2(8076, -435)
+
+[node name="PowerUp8" parent="PlayerLane/PowerUpFruit" unique_id=847562910 instance=ExtResource("14_dlaip")]
+position = Vector2(9394, -350)
+
+[node name="PowerUp9" parent="PlayerLane/PowerUpFruit" unique_id=192837465 instance=ExtResource("14_dlaip")]
+position = Vector2(10350, -435)
+
+[node name="PowerUp10" parent="PlayerLane/PowerUpFruit" unique_id=564738291 instance=ExtResource("14_dlaip")]
+position = Vector2(11293, -350)
 
 [node name="Goal" parent="PlayerLane" unique_id=1909929526 instance=ExtResource("3_bhwwd")]
 position = Vector2(12613, 252)
 collision_layer = 8
-collision_mask = 1
 
 [node name="SabotageSystem" type="Node2D" parent="PlayerLane" unique_id=1600669398]
 script = ExtResource("10_ph1f2")
+
+[node name="StartLine" parent="PlayerLane" unique_id=66962907 instance=ExtResource("12_odt01")]
+position = Vector2(-35, -383)
+scale = Vector2(1e-05, 1e-05)
+
+[node name="FinishLine" parent="PlayerLane" unique_id=1537014825 instance=ExtResource("13_6ll7h")]
+position = Vector2(12613, -383)

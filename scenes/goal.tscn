@@ -1,9 +1,10 @@
 [gd_scene format=3 uid="uid://dy6njdjii7bsm"]
 
 [ext_resource type="Script" uid="uid://nlr3ypmor7xo" path="res://scripts/goal.gd" id="1_6k3qi"]
+[ext_resource type="PackedScene" uid="uid://c2n1hej8gkemy" path="res://scenes/FinishLine.tscn" id="2_sx1j4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7sh37"]
-size = Vector2(56, 3668)
+size = Vector2(56, 1272)
 
 [node name="Goal" type="Area2D" unique_id=1909929526]
 collision_layer = 3
@@ -12,9 +13,11 @@ script = ExtResource("1_6k3qi")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1798186973]
 visibility_layer = 7
-position = Vector2(0, 563)
+position = Vector2(0, -635)
 shape = SubResource("RectangleShape2D_7sh37")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=407679929]
+
+[node name="FinishLineVisual" parent="." unique_id=1998857735 instance=ExtResource("2_sx1j4")]
 
 [connection signal="body_entered" from="." to="." method="_on_body_entered"]

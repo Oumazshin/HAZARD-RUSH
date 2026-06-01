@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dtenxyj2hh7hv"
-path="res://.godot/imported/SLIDE (32x32).png-3c7de67b6a6b61a38e84cde7fe8068c8.ctex"
+path="res://.godot/imported/SLIDE (32x32).png-f73a24038b19b4e1f677ad21c3922414.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/characters/player/SLIDE (32x32).png"
-dest_files=["res://.godot/imported/SLIDE (32x32).png-3c7de67b6a6b61a38e84cde7fe8068c8.ctex"]
+source_file="res://assets/Characters/Player/SLIDE (32x32).png"
+dest_files=["res://.godot/imported/SLIDE (32x32).png-f73a24038b19b4e1f677ad21c3922414.ctex"]
 
 [params]
 

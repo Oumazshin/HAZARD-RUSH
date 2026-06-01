@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://clgxqi1u3qjwf"]
 
-[ext_resource type="Texture2D" uid="uid://bqkw4560in2hr" path="res://assets/environment/hurdles/Idle.png" id="1_k3w4r"]
+[ext_resource type="Texture2D" uid="uid://bqkw4560in2hr" path="res://assets/environment/Hurdles/Idle.png" id="1_k3w4r"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bq0fl"]
 size = Vector2(47.5, 8)

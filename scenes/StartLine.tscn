@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://78u2qp4x0mr"]
+
+[ext_resource type="Script" uid="uid://bmju760valbk4" path="res://scripts/start_line.gd" id="1"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_fsrsm"]
+
+[node name="StartLine" type="Node2D" unique_id=1997136637]
+script = ExtResource("1")
+
+[node name="StartSprite" type="AnimatedSprite2D" parent="." unique_id=452751354]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_fsrsm")

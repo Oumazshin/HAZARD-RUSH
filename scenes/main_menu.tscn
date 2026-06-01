@@ -1,12 +1,19 @@
 [gd_scene format=3 uid="uid://dugqfwxo24thm"]
 
-[ext_resource type="Script" uid="uid://cygyw7xa3qsxu" path="res://scripts/main_menu.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://cbmlsnl38o18n" path="res://scripts/main_menu.gd" id="1_ekxnf"]
+[ext_resource type="PackedScene" uid="uid://dnqx8x832524m" path="res://scenes/MenuBackground.tscn" id="1_l6cm7"]
 
-[node name="root" type="Control"]
+[node name="root" type="Control" unique_id=443020247]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_script")
+script = ExtResource("1_ekxnf")
+
+[node name="MenuBackground" parent="." unique_id=705889311 instance=ExtResource("1_l6cm7")]
+layout_mode = 1
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=330186394]
+layer = -1

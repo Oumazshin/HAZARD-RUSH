@@ -1,72 +1,75 @@
+# finish_line.gd
+# ─────────────────────────────────────────────────────────────────────────────
+# Animated finish line decoration (flag + trophy).
+# Add scenes/FinishLine.tscn directly to the Lane node in game_world.tscn
+# and ai_world.tscn at the goal X position (use goal.tscn's X as reference).
+# NOT a child of Player or Camera2D.
+# ─────────────────────────────────────────────────────────────────────────────
 extends Node2D
-# Visible finish line. goal.gd adds one of these as a child of each Goal at
-# runtime (the Goal's built-in Sprite2D is empty). The banner is centered on the
-# racer's actual height in this lane, so it shows correctly in BOTH the player
-# and opponent views — even though the two lanes sit at very different Y offsets.
 
-const HALF_H := 200.0    # half-height of the checkered band
-const BAND_W := 40.0     # band width
-const COL_W  := 20.0
-const ROW_H  := 25.0
-const COLS   := 2
+const FLAG_PATH   : String  = "res://assets/environment/Decorations/Finish line flag (Flag Idle)(64x64).png"
+const TROPHY_PATH : String  = "res://assets/environment/Decorations/Finish Line Trophy (Pressed) (64x64).png"
+const FRAME_H     : int     = 64
+const FLAG_FPS    : float   = 8.0
+const TROPHY_FPS  : float   = 6.0
+const WORLD_SCALE : Vector2 = Vector2(3.0, 3.0)
 
-const DARK  := Color(0.10, 0.10, 0.10, 0.72)
-const LIGHT := Color(0.96, 0.96, 0.96, 0.72)
-
-var _t := 0.0
-var _racer: Node2D = null
+@onready var _flag_sprite   : AnimatedSprite2D = $FlagSprite
+@onready var _trophy_sprite : AnimatedSprite2D = $TrophySprite
 
 func _ready() -> void:
-	z_index = 5          # draw above the floor and parallax background
-	z_as_relative = false
+	scale = WORLD_SCALE
+	
+	# Push this node and its children behind other standard assets
+	z_index = -10
+	
+	# Safeguard: Check if the nodes were successfully found before moving them
+	if _flag_sprite == null or _trophy_sprite == null:
+		push_error("[FinishLine] Error: Cannot find FlagSprite or TrophySprite. Check node names in FinishLine.tscn.")
+		return
+	
+	# The flag stays exactly at the parent's position
+	_flag_sprite.position = Vector2(0, 0)
+	
+	# Push the trophy far past the finish line flag
+	_trophy_sprite.position = Vector2(150, 0)
+	
+	_build_animation(_flag_sprite,   FLAG_PATH,   "idle", FLAG_FPS)
+	_build_animation(_trophy_sprite, TROPHY_PATH, "idle", TROPHY_FPS)
 
-func _process(delta: float) -> void:
-	_t += delta
-	queue_redraw()       # animate the gentle wave
+## Shared helper — loads a horizontal spritesheet and plays it on a given sprite.
+func _build_animation(
+	sprite    : AnimatedSprite2D,
+	path      : String,
+	anim_name : String,
+	fps       : float
+) -> void:
+	if sprite == null:
+		push_error("[FinishLine] Sprite node is null when loading '%s'." % path)
+		return
+	if not ResourceLoader.exists(path):
+		push_warning("[FinishLine] Texture missing: '%s'" % path)
+		return
 
-# The racer (player or AI) sharing this lane, so the banner can match its height.
-func _get_racer() -> Node2D:
-	if _racer != null and is_instance_valid(_racer):
-		return _racer
-	var lane := get_parent().get_parent()   # FinishLineVisual -> Goal -> lane
-	for grp in ["player", "opponent"]:
-		for n in get_tree().get_nodes_in_group(grp):
-			if lane != null and lane.is_ancestor_of(n):
-				_racer = n as Node2D
-				return _racer
-	return null
+	var sheet : Texture2D = load(path)
+	var fc    : int       = int(float(sheet.get_width()) / float(FRAME_H))
 
-func _draw() -> void:
-	# Vertical center of the banner, in local space, at the racer's height.
-	var cy := 0.0
-	var racer := _get_racer()
-	if racer != null:
-		cy = to_local(racer.global_position).y
-	var left := -BAND_W / 2.0
+	if fc <= 0:
+		push_warning("[FinishLine] No frames detected in '%s'." % path)
+		return
 
-	# Pole
-	draw_rect(Rect2(left - 10.0, cy - HALF_H - 70.0, 8.0, (HALF_H * 2.0) + 70.0),
-			Color(0.22, 0.22, 0.25, 1.0))
+	var sf := SpriteFrames.new()
+	sf.add_animation(anim_name)
+	sf.set_animation_loop(anim_name, true)
+	sf.set_animation_speed(anim_name, fps)
 
-	# Checkered banner band with a gentle per-row wave.
-	var rows := int((HALF_H * 2.0) / ROW_H)
-	for row in rows:
-		var y := cy - HALF_H + row * ROW_H
-		var wave := sin(_t * 3.0 + row * 0.5) * 3.0
-		for col in COLS:
-			var x := left + col * COL_W + wave
-			var c := DARK if ((row + col) % 2 == 0) else LIGHT
-			draw_rect(Rect2(x, y, COL_W, ROW_H), c)
+	for i in fc:
+		var atlas    := AtlasTexture.new()
+		atlas.atlas  =  sheet
+		atlas.region =  Rect2(i * FRAME_H, 0, FRAME_H, FRAME_H)
+		sf.add_frame(anim_name, atlas)
 
-	# Bright marker line at the exact finish x.
-	draw_rect(Rect2(-1.5, cy - HALF_H - 6.0, 3.0, (HALF_H * 2.0) + 12.0),
-			Color(1.0, 0.85, 0.0, 0.9))
-
-	# Small waving flag at the top of the pole.
-	var fx := left - 2.0
-	var fy := cy - HALF_H - 70.0
-	for col in 3:
-		for r2 in 2:
-			var fw := sin(_t * 4.0 + col * 0.7) * 2.5
-			var cc := DARK if ((col + r2) % 2 == 0) else LIGHT
-			draw_rect(Rect2(fx + col * 16.0, fy + r2 * 14.0 + fw, 16.0, 14.0), cc)
+	sprite.sprite_frames  = sf
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	sprite.play(anim_name)
+	print("[FinishLine] '%s' ready — %d frames." % [path.get_file(), fc])

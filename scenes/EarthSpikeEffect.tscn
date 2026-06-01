@@ -1,87 +1,68 @@
-[gd_scene format=3 uid="uid://c7jf8odso65do"]
+[gd_scene format=3 uid="uid://bbiq8vog38wxy"]
 
-[ext_resource type="Texture2D" uid="uid://bli1flbclmt16" path="res://assets/traps_and_sabotage/earth_spike Hurdle/001.png" id="1_hoaca"]
-[ext_resource type="Script" uid="uid://bgtbotex8lauf" path="res://scripts/earth_spike_effect.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://dadch7eo2hvms" path="res://assets/traps_and_sabotage/earth_spike Hurdle/002.png" id="2_7g2y2"]
-[ext_resource type="Texture2D" uid="uid://cl4x5oq68jrb6" path="res://assets/traps_and_sabotage/earth_spike Hurdle/003.png" id="3_3dvh5"]
-[ext_resource type="Texture2D" uid="uid://dq5qqdxvfqmy" path="res://assets/traps_and_sabotage/earth_spike Hurdle/004.png" id="4_wfoql"]
-[ext_resource type="Texture2D" uid="uid://bibsx2y3jg4ek" path="res://assets/traps_and_sabotage/earth_spike Hurdle/005.png" id="5_p2siy"]
-[ext_resource type="Texture2D" uid="uid://dlnc726afcjkm" path="res://assets/traps_and_sabotage/earth_spike Hurdle/006.png" id="6_5cq7y"]
-[ext_resource type="Texture2D" uid="uid://ct15ict7j2crh" path="res://assets/traps_and_sabotage/earth_spike Hurdle/007.png" id="7_kqpj0"]
-[ext_resource type="Texture2D" uid="uid://c5lnbqgy8anc2" path="res://assets/traps_and_sabotage/earth_spike Hurdle/008.png" id="8_njvx2"]
-[ext_resource type="Texture2D" uid="uid://tyao5k8vul4l" path="res://assets/traps_and_sabotage/earth_spike Hurdle/009.png" id="9_npynm"]
+[ext_resource type="Texture2D" uid="uid://bli1flbclmt16" path="res://assets/environment/Hurdles/traps_and_sabotage/earth_spike Hurdle/001.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://dadch7eo2hvms" path="res://assets/environment/Hurdles/traps_and_sabotage/earth_spike Hurdle/002.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://cl4x5oq68jrb6" path="res://assets/environment/Hurdles/traps_and_sabotage/earth_spike Hurdle/003.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://dq5qqdxvfqmy" path="res://assets/environment/Hurdles/traps_and_sabotage/earth_spike Hurdle/004.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://bibsx2y3jg4ek" path="res://assets/environment/Hurdles/traps_and_sabotage/earth_spike Hurdle/005.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://dlnc726afcjkm" path="res://assets/environment/Hurdles/traps_and_sabotage/earth_spike Hurdle/006.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://ct15ict7j2crh" path="res://assets/environment/Hurdles/traps_and_sabotage/earth_spike Hurdle/007.png" id="7"]
+[ext_resource type="Texture2D" uid="uid://c5lnbqgy8anc2" path="res://assets/environment/Hurdles/traps_and_sabotage/earth_spike Hurdle/008.png" id="8"]
+[ext_resource type="Texture2D" uid="uid://tyao5k8vul4l" path="res://assets/environment/Hurdles/traps_and_sabotage/earth_spike Hurdle/009.png" id="9"]
+[ext_resource type="Script" uid="uid://bgtbotex8lauf" path="res://scripts/earth_spike_effect.gd" id="10"]
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_e35or"]
+[sub_resource type="SpriteFrames" id="SpriteFrames_earth"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_hoaca")
+"texture": ExtResource("1")
 }, {
 "duration": 1.0,
-"texture": ExtResource("2_7g2y2")
+"texture": ExtResource("2")
 }, {
 "duration": 1.0,
-"texture": ExtResource("3_3dvh5")
+"texture": ExtResource("3")
 }, {
 "duration": 1.0,
-"texture": ExtResource("4_wfoql")
+"texture": ExtResource("4")
 }, {
 "duration": 1.0,
-"texture": ExtResource("5_p2siy")
+"texture": ExtResource("5")
 }, {
 "duration": 1.0,
-"texture": ExtResource("6_5cq7y")
+"texture": ExtResource("6")
 }, {
 "duration": 1.0,
-"texture": ExtResource("7_kqpj0")
+"texture": ExtResource("7")
 }, {
 "duration": 1.0,
-"texture": ExtResource("8_njvx2")
+"texture": ExtResource("8")
 }, {
 "duration": 1.0,
-"texture": ExtResource("9_npynm")
-}, {
-"duration": 1.0,
-"texture": ExtResource("8_njvx2")
-}, {
-"duration": 1.0,
-"texture": ExtResource("7_kqpj0")
-}, {
-"duration": 1.0,
-"texture": ExtResource("6_5cq7y")
-}, {
-"duration": 1.0,
-"texture": ExtResource("5_p2siy")
-}, {
-"duration": 1.0,
-"texture": ExtResource("4_wfoql")
-}, {
-"duration": 1.0,
-"texture": ExtResource("3_3dvh5")
-}, {
-"duration": 1.0,
-"texture": ExtResource("2_7g2y2")
-}, {
-"duration": 1.0,
-"texture": ExtResource("1_hoaca")
+"texture": ExtResource("9")
 }],
-"loop": true,
-"name": &"anim",
-"speed": 1.0
-}, {
-"frames": [],
-"loop": true,
-"name": &"default",
-"speed": 5.0
+"loop": false,
+"name": &"rise",
+"speed": 12.0
 }]
 
-[node name="EarthSpikeEffect" type="AnimatedSprite2D" unique_id=1044419713]
-modulate = Color(1, 0.85, 1, 1)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_earth"]
+size = Vector2(57.333336, 17.666664)
+
+[node name="EarthSpikeEffect" type="Area2D" unique_id=618168917]
+scale = Vector2(3, 3)
+collision_layer = 7
+collision_mask = 3
+monitorable = false
+script = ExtResource("10")
+
+[node name="SpikeSprite" type="AnimatedSprite2D" parent="." unique_id=1589000244]
 texture_filter = 1
-position = Vector2(0, -45)
-scale = Vector2(2, 2)
-sprite_frames = SubResource("SpriteFrames_e35or")
-animation = &"anim"
-frame_progress = 0.69417024
-speed_scale = 8.0
-script = ExtResource("1_script")
+sprite_frames = SubResource("SpriteFrames_earth")
+animation = &"rise"
+autoplay = "rise"
+frame = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=793055748]
+position = Vector2(0, 23.166668)
+shape = SubResource("RectangleShape2D_earth")
