@@ -74,6 +74,10 @@ func _ready() -> void:
 		_anim_sprite.modulate       = SPRITE_COLOR
 		_anim_sprite.speed_scale    = ANIM_FPS
 		_anim_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		
+	# FIXED: Scale the hitbox up to match the visual size of the fire
+	if _col_shape:
+		_col_shape.scale = SPRITE_SCALE
 
 	# Build animations and apply vertical alignment based on is_low_spawn.
 	_build_sprite_frames()

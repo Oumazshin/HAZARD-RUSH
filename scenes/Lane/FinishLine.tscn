@@ -1,13 +1,13 @@
 [gd_scene format=3 uid="uid://c2n1hej8gkemy"]
 
-[ext_resource type="Script" uid="uid://d36564whsbbr6" path="res://scripts/finish_line.gd" id="1"]
+[ext_resource type="Script" uid="uid://d36564whsbbr6" path="res://scripts/Lane/finish_line.gd" id="1_6md3m"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_h7gcd"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_fctby"]
 
 [node name="FinishLine" type="Node2D" unique_id=1998857735]
-script = ExtResource("1")
+script = ExtResource("1_6md3m")
 
 [node name="FlagSprite" type="AnimatedSprite2D" parent="." unique_id=1627407758]
 texture_filter = 1

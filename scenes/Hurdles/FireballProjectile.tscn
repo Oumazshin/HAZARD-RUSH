@@ -1,0 +1,74 @@
+[gd_scene format=3 uid="uid://crupq2oavijl6"]
+
+[ext_resource type="Script" uid="uid://colujv5xp8b63" path="res://scripts/Hurdles/fireball_projectile.gd" id="1_63ff6"]
+[ext_resource type="Texture2D" uid="uid://c4byi613odgy" path="res://assets/environment/Hurdles/traps_and_sabotage/fire_ball hurdle/001.png" id="2_og42n"]
+[ext_resource type="Texture2D" uid="uid://bcql24tywxy2a" path="res://assets/environment/Hurdles/traps_and_sabotage/fire_ball hurdle/002.png" id="3_xp5uu"]
+[ext_resource type="Texture2D" uid="uid://c8o6805e2nw51" path="res://assets/environment/Hurdles/traps_and_sabotage/fire_ball hurdle/003.png" id="4_76fo5"]
+[ext_resource type="Texture2D" uid="uid://b353t7jfocbov" path="res://assets/environment/Hurdles/traps_and_sabotage/fire_ball hurdle/004.png" id="5_xi8vp"]
+[ext_resource type="Texture2D" uid="uid://cnkof11uj4ngs" path="res://assets/environment/Hurdles/traps_and_sabotage/fire_ball hurdle/005.png" id="6_w2uux"]
+[ext_resource type="Texture2D" uid="uid://bh7vq6h71bhiu" path="res://assets/environment/Hurdles/traps_and_sabotage/fire_ball hurdle/006.png" id="7_kq7qk"]
+[ext_resource type="Texture2D" uid="uid://cpdt0jcqjp8y6" path="res://assets/environment/Hurdles/traps_and_sabotage/fire_ball hurdle/007.png" id="8_wiqj1"]
+[ext_resource type="Texture2D" uid="uid://cwnwaxyf23ab7" path="res://assets/environment/Hurdles/traps_and_sabotage/fire_ball hurdle/008.png" id="9_ov7d6"]
+[ext_resource type="Texture2D" uid="uid://8sogpvg55q8w" path="res://assets/environment/Hurdles/traps_and_sabotage/fire_ball hurdle/009.png" id="10_8owcv"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_fire"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_og42n")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_xp5uu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_76fo5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_xi8vp")
+}],
+"loop": true,
+"name": &"fly",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_w2uux")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_kq7qk")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_wiqj1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_ov7d6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_8owcv")
+}],
+"loop": false,
+"name": &"hit",
+"speed": 1.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_fire"]
+radius = 15.199999
+
+[node name="FireballProjectile" type="Area2D" unique_id=244030805]
+collision_layer = 7
+collision_mask = 3
+monitorable = false
+script = ExtResource("1_63ff6")
+
+[node name="FireballSprite" type="AnimatedSprite2D" parent="." unique_id=257147399]
+modulate = Color(1, 0.85, 0.2, 1)
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_fire")
+animation = &"fly"
+autoplay = "fly"
+speed_scale = 14.0
+flip_h = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1271921996]
+position = Vector2(-16.4, 1.2)
+shape = SubResource("CircleShape2D_fire")

@@ -6,7 +6,7 @@ func _ready() -> void:
 	# The Goal's own Sprite2D is empty, so add a visible finish-line banner.
 	# goal.tscn is instanced in both lanes, so this makes both finish lines show.
 	if not has_node("FinishLineVisual"):
-		var fl: Node2D = preload("res://scripts/finish_line.gd").new()
+		var fl: Node2D = preload("res://scripts/Lane/finish_line.gd").new()
 		fl.name = "FinishLineVisual"
 		add_child(fl)
 

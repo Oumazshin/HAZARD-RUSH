@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b741qy0hrm7en"]
 
-[ext_resource type="Script" uid="uid://dsty4s4cihdoo" path="res://scripts/power_up.gd" id="1"]
+[ext_resource type="Script" uid="uid://dsty4s4cihdoo" path="res://scripts/Lane/power_up.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://da5tc84bmyfkn" path="res://assets/environment/Fruits for PowerUps/Apple.png" id="2_0ocr6"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_1"]

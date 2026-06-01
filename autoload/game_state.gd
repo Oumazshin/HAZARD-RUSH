@@ -21,9 +21,9 @@ enum Difficulty {
 # ─────────────────────────────────────────
 var race_phase        : RacePhase  = RacePhase.PRE_MATCH
 var difficulty        : Difficulty = Difficulty.MEDIUM
-var match_timer       : float      = 60.0
-var race_elapsed_time : float      = 0.0
-var winner            : String     = ""     # "player" | "ai" | "tie"  (always lowercase)
+var match_timer       : float      = 60.0   # written by main.gd each frame
+var race_elapsed_time : float      = 0.0    # written by main.gd each frame
+var winner            : String     = ""     # "player" | "ai" | "tie" (lowercase)
 var win_reason        : String     = ""     # "finish_line" | "time_up"
 
 # ─────────────────────────────────────────
@@ -81,64 +81,31 @@ signal race_finished(winner_name: String)
 signal collision_event(racer: String, obstacle_type: String)
 signal sabotage_triggered(by_racer: String)
 signal frame_committed
-signal match_timer_updated(time_left: float)
+signal match_timer_updated(time_left: float)   # emitted by main.gd each frame
 signal match_reset
 
 # ─────────────────────────────────────────
 #  INITIALISATION
-#  Autoloads are children of the root node which has PROCESS_MODE_ALWAYS,
-#  so _process() fires even when get_tree().paused = true.
-#  The guard below suppresses game-logic ticks during a pause.
 # ─────────────────────────────────────────
 func _ready() -> void:
-	process_mode = Node.PROCESS_MODE_ALWAYS   # explicit — never inherited away
+	process_mode = Node.PROCESS_MODE_ALWAYS
 
 # ─────────────────────────────────────────
 #  FRAME PROCESS
+#  Timer countdown is owned by main.gd which writes match_timer and
+#  race_elapsed_time directly. GameState only ticks stumble timers here.
 # ─────────────────────────────────────────
 func _process(delta: float) -> void:
 	if get_tree().paused:
 		return
-
 	frame_committed.emit()
-
-	if race_phase == RacePhase.RACING:
-		# ── Match countdown ───────────────────────────────────────────────
-		match_timer       -= delta
-		race_elapsed_time += delta
-		match_timer_updated.emit(maxf(match_timer, 0.0))
-		if match_timer <= 0.0:
-			match_timer = 0.0
-			_resolve_time_up()
-
-	# ── Stumble timers ────────────────────────────────────────────────────
-	# BUG FIX: These were set by apply_kei_penalty() but never decremented,
-	# causing is_player_stumbling() / is_ai_stumbling() to return true
-	# permanently after the first collision within a match.
-	# Ticked outside the RACING guard so they drain correctly even near
-	# phase transitions (e.g. collision fires on the finish-line frame).
+	# FIX: Stumble timers were set by apply_kei_penalty() but never decremented,
+	# causing is_player/ai_stumbling() to return true permanently after the
+	# first collision. Ticked here so they drain correctly every frame.
 	if player_stumble_timer > 0.0:
 		player_stumble_timer = maxf(player_stumble_timer - delta, 0.0)
 	if ai_stumble_timer > 0.0:
 		ai_stumble_timer = maxf(ai_stumble_timer - delta, 0.0)
-
-# ─────────────────────────────────────────
-#  MATCH RESOLUTION — Time-Up
-# ─────────────────────────────────────────
-func _resolve_time_up() -> void:
-	if player_kei > ai_kei:
-		winner = "player"
-	elif ai_kei > player_kei:
-		winner = "ai"
-	else:
-		if player_position > ai_position:
-			winner = "player"
-		elif ai_position > player_position:
-			winner = "ai"
-		else:
-			winner = "tie"
-	win_reason = "time_up"
-	set_phase(RacePhase.FINISHED)
 
 # ─────────────────────────────────────────
 #  HELPERS

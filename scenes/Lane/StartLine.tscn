@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://78u2qp4x0mr"]
 
-[ext_resource type="Script" uid="uid://bmju760valbk4" path="res://scripts/start_line.gd" id="1"]
+[ext_resource type="Script" uid="uid://bmju760valbk4" path="res://scripts/Lane/start_line.gd" id="1"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_fsrsm"]
 

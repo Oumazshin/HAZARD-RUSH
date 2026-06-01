@@ -1,13 +1,12 @@
 [gd_scene format=3 uid="uid://pigwuf03fnbn"]
 
 [ext_resource type="Script" uid="uid://csuj18ejbojg2" path="res://scripts/main.gd" id="1_tbgi4"]
-[ext_resource type="PackedScene" uid="uid://drk6vbedm2vgh" path="res://scenes/game_world.tscn" id="3_sugp2"]
-[ext_resource type="PackedScene" uid="uid://csnoilnbpgdrq" path="res://scenes/results_menu.tscn" id="4_jyhfs"]
-[ext_resource type="PackedScene" uid="uid://ekvcn0lve625" path="res://scenes/ai_world.tscn" id="4_tbgi4"]
+[ext_resource type="PackedScene" uid="uid://drk6vbedm2vgh" path="res://scenes/Lane/game_world.tscn" id="3_sugp2"]
+[ext_resource type="PackedScene" uid="uid://ekvcn0lve625" path="res://scenes/Lane/ai_world.tscn" id="4_tbgi4"]
 [ext_resource type="PackedScene" uid="uid://cw48f7lrusx5w" path="res://scenes/GameUI.tscn" id="6_tefeu"]
 [ext_resource type="Script" uid="uid://ct851f8vddnll" path="res://scripts/split_screen_ui.gd" id="7_o6xl0"]
-[ext_resource type="PackedScene" uid="uid://dvmd3rh30sdua" path="res://pause_menu.tscn" id="7_tipki"]
-[ext_resource type="PackedScene" uid="uid://6yvdopv5kow4" path="res://results_screen.tscn" id="8_tipki"]
+[ext_resource type="PackedScene" uid="uid://dvmd3rh30sdua" path="res://scenes/pause_menu.tscn" id="7_tipki"]
+[ext_resource type="PackedScene" uid="uid://6yvdopv5kow4" path="res://scenes/results_screen.tscn" id="8_tipki"]
 
 [node name="Main" type="Node2D" unique_id=5294036]
 script = ExtResource("1_tbgi4")
@@ -49,10 +48,6 @@ render_target_update_mode = 4
 position_smoothing_enabled = true
 
 [node name="AILane" parent="SplitScreenUI/BottomOpponentView/Viewport2" unique_id=1925528510 instance=ExtResource("4_tbgi4")]
-
-[node name="ResultsMenu" parent="." unique_id=273355355 instance=ExtResource("4_jyhfs")]
-unique_name_in_owner = true
-process_mode = 3
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=1450743699]
 

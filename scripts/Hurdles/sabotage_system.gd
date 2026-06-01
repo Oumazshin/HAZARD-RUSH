@@ -24,9 +24,9 @@ extends Node2D
 
 # ── Preloads ──────────────────────────────────────────────────────────────────
 # SPIKE_SCENE removed — EarthSpikeEffect is the single earth-spike spawn.
-const EARTH_SPIKE_EFFECT  = preload("res://scenes/EarthSpikeEffect.tscn")
-const FIREBALL_PROJECTILE = preload("res://scenes/FireballProjectile.tscn")
-const WARNING_INDICATOR   = preload("res://scenes/WarningIndicator.tscn")
+const EARTH_SPIKE_EFFECT  = preload("res://scenes/Hurdles/EarthSpikeEffect.tscn")
+const FIREBALL_PROJECTILE = preload("res://scenes/Hurdles/FireballProjectile.tscn")
+const WARNING_INDICATOR   = preload("res://scenes/Hurdles/WarningIndicator.tscn")
 
 # ── NEW: Trigger zone signal ──────────────────────────────────────────────────
 ## Emitted every TRIGGER_ZONE_INTERVAL seconds when the race is live and
@@ -181,7 +181,8 @@ func trigger(attacker: String = "") -> void:
 	else:
 		# Fireball: spawns at right of screen, moves left.
 		var sx := _victim_position() + fireball_screen_edge_offset
-		hazard_node = _spawn_fireball(Vector2(sx, spawn_y))
+		# FIXED: Pass the !is_high flag to _spawn_fireball so it knows to bottom-anchor
+		hazard_node = _spawn_fireball(Vector2(sx, spawn_y), not is_high)
 
 	if hazard_node == null:
 		return
@@ -210,8 +211,10 @@ func _spawn_earth_spike(spawn_pos: Vector2) -> Node:
 	return hazard
 
 ## Spawns a fireball projectile that moves left at MOVE_SPEED px/s.
-func _spawn_fireball(spawn_pos: Vector2) -> Node:
+func _spawn_fireball(spawn_pos: Vector2, is_low: bool) -> Node:
 	var projectile := FIREBALL_PROJECTILE.instantiate()
+	# FIXED: Set the flag BEFORE it is added to the scene tree
+	projectile.is_low_spawn = is_low 
 	get_parent().add_child(projectile)
 	projectile.global_position = spawn_pos
 	projectile.set_meta("sabotage", true)

@@ -1,11 +1,11 @@
-[gd_scene format=3 uid="uid://c1s2mnmveskn4"]
+[gd_scene format=3 uid="uid://c8ifuvu5oag5l"]
 
-[ext_resource type="Texture2D" uid="uid://dypw35xetkg7b" path="res://assets/Characters/Opponent/Idle (32x32).png" id="1_lcbm7"]
-[ext_resource type="Script" uid="uid://dokiqhwv3bntv" path="res://scripts/opponent_ai.gd" id="1_x0r5o"]
-[ext_resource type="Texture2D" uid="uid://c3o4d1bx4v0hl" path="res://assets/Characters/Opponent/Double Jump (32x32).png" id="2_a8k7e"]
-[ext_resource type="Texture2D" uid="uid://c0jumi8cug1g5" path="res://assets/Characters/Opponent/Run (32x32).png" id="3_luuj7"]
-[ext_resource type="Texture2D" uid="uid://blmow3rv6wiuc" path="res://assets/Characters/Opponent/slide.png" id="4_x0r5o"]
-[ext_resource type="Texture2D" uid="uid://c23d0r3ihckk7" path="res://assets/Characters/Opponent/Hit (32x32).png" id="5_luuj7"]
+[ext_resource type="Texture2D" uid="uid://cknx5nehxs6t4" path="res://assets/Characters/Player/Idle (32x32).png" id="1_4flbx"]
+[ext_resource type="Script" uid="uid://dqfmibq0m3ics" path="res://scripts/Characters/player.gd" id="1_g2els"]
+[ext_resource type="Texture2D" uid="uid://h3kqydswj8gt" path="res://assets/Characters/Player/Run (32x32).png" id="2_g2els"]
+[ext_resource type="Texture2D" uid="uid://u4cju5ie4xl3" path="res://assets/Characters/Player/Double Jump (32x32).png" id="4_qlg0r"]
+[ext_resource type="Texture2D" uid="uid://dtenxyj2hh7hv" path="res://assets/Characters/Player/SLIDE (32x32).png" id="5_tuyoq"]
+[ext_resource type="Texture2D" uid="uid://chiwwk8msbfe1" path="res://assets/Characters/Player/Hit (32x32).png" id="6_fjrip"]
 
 [sub_resource type="Animation" id="Animation_3vyb7"]
 length = 0.001
@@ -19,7 +19,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ExtResource("1_lcbm7")]
+"values": [ExtResource("1_4flbx")]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -133,7 +133,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ExtResource("1_lcbm7")]
+"values": [ExtResource("1_4flbx")]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -246,7 +246,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ExtResource("2_a8k7e")]
+"values": [ExtResource("4_qlg0r")]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -360,7 +360,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ExtResource("3_luuj7")]
+"values": [ExtResource("2_g2els")]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -473,7 +473,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ExtResource("4_x0r5o")]
+"values": [ExtResource("5_tuyoq")]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -586,7 +586,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 1,
-"values": [ExtResource("5_luuj7")]
+"values": [ExtResource("6_fjrip")]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -701,14 +701,12 @@ size = Vector2(23.000002, 24.333334)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_tuyoq"]
 size = Vector2(23, 24.333334)
 
-[node name="OpponentAI" type="CharacterBody2D" unique_id=1583175165 groups=["opponent"]]
+[node name="Player" type="CharacterBody2D" unique_id=1583175165]
 scale = Vector2(3, 3)
-collision_layer = 2
-collision_mask = 2
-script = ExtResource("1_x0r5o")
+script = ExtResource("1_g2els")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1934878395]
-texture = ExtResource("1_lcbm7")
+texture = ExtResource("1_4flbx")
 hframes = 11
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=675513792]
@@ -719,22 +717,9 @@ position = Vector2(0.16666651, 3.833333)
 shape = SubResource("RectangleShape2D_qhqgy")
 
 [node name="Hitbox" type="Area2D" parent="." unique_id=739502030]
-collision_mask = 2
 
 [node name="HitboxCollision" type="CollisionShape2D" parent="Hitbox" unique_id=66883726]
 position = Vector2(0.16666651, 3.833333)
 shape = SubResource("RectangleShape2D_tuyoq")
-
-[node name="JumpRaycast" type="RayCast2D" parent="." unique_id=117428231]
-position = Vector2(0, 3.6666665)
-target_position = Vector2(80, 0)
-collision_mask = 6
-collide_with_areas = true
-
-[node name="SlideRaycast" type="RayCast2D" parent="." unique_id=450867984]
-position = Vector2(0, -30)
-target_position = Vector2(120, 0)
-collision_mask = 6
-collide_with_areas = true
 
 [connection signal="area_entered" from="Hitbox" to="." method="_on_hitbox_area_entered"]

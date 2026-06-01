@@ -1,27 +1,13 @@
 # results_screen.gd
 # ─────────────────────────────────────────────────────────────────────────────
-# Match Results overlay — shown automatically when GameState emits race_finished.
-#
-# Scene setup (do this once):
-#   1. In Godot Editor → Scene menu → New Scene
-#   2. Root node type: CanvasLayer  → rename it "ResultsScreen"
-#   3. Attach this script to that CanvasLayer node
-#   4. Save as res://scenes/ResultsScreen.tscn
-#   5. Open your main game scene (main.tscn)
-#   6. Right-click the root node → Instantiate Child Scene
-#      → select ResultsScreen.tscn
-#   7. Save main.tscn
-#
-# Rematch flow:
-#   GameState.reset_match() → reload current scene (full re-init of all nodes)
-#
-# ⚠ Verify MAIN_MENU_SCENE matches your actual main menu scene path.
+# Match Results overlay.
+# Scene setup: CanvasLayer root → attach this script → save as
+# res://scenes/ResultsScreen.tscn → instance as child of main.tscn.
 # ─────────────────────────────────────────────────────────────────────────────
 extends CanvasLayer
 
-const MAIN_MENU_SCENE : String = "res://scenes/MainMenu.tscn"
+const MAIN_MENU_SCENE : String = "res://scenes/main_menu.tscn"
 
-# ── Visual constants ──────────────────────────────────────────────────────────
 const OVERLAY_COLOR      : Color = Color(0.00, 0.00, 0.00, 0.78)
 const PANEL_BG_COLOR     : Color = Color(0.06, 0.06, 0.10, 0.97)
 const PANEL_BORDER_COLOR : Color = Color(0.35, 0.35, 0.50, 0.80)
@@ -37,8 +23,6 @@ const STAT_FONT_SIZE     : int   = 15
 const BUTTON_FONT_SIZE   : int   = 17
 
 var _font           : FontFile = null
-
-# ── Dynamic label references (populated in _build_ui) ─────────────────────────
 var _winner_lbl     : Label    = null
 var _reason_lbl     : Label    = null
 var _player_kei_lbl : Label    = null
@@ -48,26 +32,22 @@ var _time_lbl       : Label    = null
 # ─────────────────────────────────────────────────────────────────────────────
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	layer        = 25   # above PauseMenu (20) and GameUI (10)
+	layer        = 25
 	_load_font()
 	_build_ui()
 	hide()
 	GameState.race_finished.connect(_on_race_finished)
 
 func _load_font() -> void:
-	const FONT_PATH : String = "res://assets/Global/text/fonts/BoldPixels.ttf"
+	const FONT_PATH : String = "res://assets/new/BoldPixels.ttf"
 	if ResourceLoader.exists(FONT_PATH):
 		_font = load(FONT_PATH) as FontFile
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  Signal handler — fires when GameState.set_phase(FINISHED) is called
-# ─────────────────────────────────────────────────────────────────────────────
 func _on_race_finished(_winner_name: String) -> void:
 	_refresh_labels()
 	show()
 
 func _refresh_labels() -> void:
-	# ── Winner announcement ───────────────────────────────────────────────
 	match GameState.winner:
 		"player":
 			_winner_lbl.text     = "PLAYER WINS!"
@@ -79,43 +59,35 @@ func _refresh_labels() -> void:
 			_winner_lbl.text     = "IT'S A TIE!"
 			_winner_lbl.modulate = TIE_COLOR
 
-	# ── Win reason subtitle ───────────────────────────────────────────────
 	match GameState.win_reason:
 		"finish_line": _reason_lbl.text = "Finish Line Crossed!"
 		"time_up":     _reason_lbl.text = "Time's Up!"
 		_:             _reason_lbl.text = ""
 
-	# ── Final KEI stats ───────────────────────────────────────────────────
 	_player_kei_lbl.text = "Player KEI  :  %.0f%%" % (GameState.player_kei * 100.0)
 	_ai_kei_lbl.text     = "AI KEI         :  %.0f%%" % (GameState.ai_kei     * 100.0)
 
-	# ── Race time (elapsed) ───────────────────────────────────────────────
-	var e   : float = GameState.race_elapsed_time
-	var m   : int   = int(e / 60.0)
-	var s   : int   = int(e) % 60
-	var cs  : int   = int(fmod(e, 1.0) * 100)
+	var e  : float = GameState.race_elapsed_time
+	var m  : int   = int(e / 60.0)
+	var s  : int   = int(e) % 60
+	var cs : int   = int(fmod(e, 1.0) * 100)
 	_time_lbl.text = "Race Time  :  %02d:%02d.%02d" % [m, s, cs]
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  Button callbacks
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Button callbacks ──────────────────────────────────────────────────────────
 func _on_rematch_pressed() -> void:
 	hide()
+	get_tree().paused = false   # FIX: main.gd pauses tree on match end
 	GameState.reset_match()
-	# reload_current_scene() destroys and recreates every node in the game
-	# scene, which re-runs every _ready() — the cleanest possible full reset.
 	get_tree().reload_current_scene()
 
 func _on_quit_pressed() -> void:
 	hide()
+	get_tree().paused = false   # FIX: main.gd pauses tree on match end
 	GameState.reset_match()
 	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  UI — built programmatically (no child nodes needed in the .tscn)
-# ─────────────────────────────────────────────────────────────────────────────
+# ── UI construction ───────────────────────────────────────────────────────────
 func _build_ui() -> void:
-	# Full-screen overlay
 	var overlay          := ColorRect.new()
 	overlay.name         =  "Overlay"
 	overlay.color        =  OVERLAY_COLOR
@@ -123,7 +95,6 @@ func _build_ui() -> void:
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(overlay)
 
-	# Centred panel
 	var panel            := PanelContainer.new()
 	panel.name           =  "ResultPanel"
 	panel.anchor_left    =  0.5
@@ -158,14 +129,12 @@ func _build_ui() -> void:
 	vbox.add_theme_constant_override("separation", 10)
 	panel.add_child(vbox)
 
-	# ── Winner label ───────────────────────────────────────────────────────
 	_winner_lbl = Label.new()
 	_winner_lbl.text               = "?"
 	_winner_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_apply_font(_winner_lbl, TITLE_FONT_SIZE)
 	vbox.add_child(_winner_lbl)
 
-	# ── Reason subtitle ────────────────────────────────────────────────────
 	_reason_lbl = Label.new()
 	_reason_lbl.text               = ""
 	_reason_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -173,7 +142,6 @@ func _build_ui() -> void:
 	_apply_font(_reason_lbl, SUBTITLE_FONT_SIZE)
 	vbox.add_child(_reason_lbl)
 
-	# ── Divider ────────────────────────────────────────────────────────────
 	_add_spacer(vbox, 4.0)
 	var div              := ColorRect.new()
 	div.custom_minimum_size = Vector2(0.0, 2.0)
@@ -181,20 +149,16 @@ func _build_ui() -> void:
 	vbox.add_child(div)
 	_add_spacer(vbox, 4.0)
 
-	# ── Stat labels ────────────────────────────────────────────────────────
 	_player_kei_lbl = _make_stat_label("Player KEI  :  --")
 	vbox.add_child(_player_kei_lbl)
-
 	_ai_kei_lbl = _make_stat_label("AI KEI         :  --")
 	vbox.add_child(_ai_kei_lbl)
-
 	_time_lbl = _make_stat_label("Race Time  :  --:--")
 	vbox.add_child(_time_lbl)
 
 	_add_spacer(vbox, 10.0)
 
-	# ── Action buttons ─────────────────────────────────────────────────────
-	var rematch_btn := _make_button("REMATCH",          REMATCH_COLOR)
+	var rematch_btn := _make_button("REMATCH",           REMATCH_COLOR)
 	rematch_btn.pressed.connect(_on_rematch_pressed)
 	vbox.add_child(rematch_btn)
 
@@ -202,9 +166,6 @@ func _build_ui() -> void:
 	quit_btn.pressed.connect(_on_quit_pressed)
 	vbox.add_child(quit_btn)
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  Helpers
-# ─────────────────────────────────────────────────────────────────────────────
 func _make_stat_label(text: String) -> Label:
 	var lbl := Label.new()
 	lbl.text = text
@@ -214,10 +175,10 @@ func _make_stat_label(text: String) -> Label:
 	return lbl
 
 func _make_button(label_text: String, bg_color: Color) -> Button:
-	var btn                  := Button.new()
-	btn.text                  = label_text
-	btn.custom_minimum_size   = Vector2(330.0, 50.0)
-	btn.focus_mode            = Control.FOCUS_ALL
+	var btn := Button.new()
+	btn.text = label_text
+	btn.custom_minimum_size = Vector2(330.0, 50.0)
+	btn.focus_mode = Control.FOCUS_ALL
 
 	var normal := StyleBoxFlat.new()
 	normal.bg_color                   = bg_color
@@ -232,7 +193,6 @@ func _make_button(label_text: String, bg_color: Color) -> Button:
 
 	var hover   := normal.duplicate() as StyleBoxFlat
 	hover.bg_color = bg_color.lightened(0.12)
-
 	var pressed := normal.duplicate() as StyleBoxFlat
 	pressed.bg_color = bg_color.darkened(0.15)
 
@@ -252,6 +212,6 @@ func _apply_font_btn(btn: Button, size: int) -> void:
 	btn.add_theme_font_size_override("font_size", size)
 
 func _add_spacer(parent: Node, height: float) -> void:
-	var s                    := Control.new()
-	s.custom_minimum_size     = Vector2(0.0, height)
+	var s                 := Control.new()
+	s.custom_minimum_size  = Vector2(0.0, height)
 	parent.add_child(s)

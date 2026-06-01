@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dy6njdjii7bsm"]
 
-[ext_resource type="Script" uid="uid://nlr3ypmor7xo" path="res://scripts/goal.gd" id="1_6k3qi"]
-[ext_resource type="PackedScene" uid="uid://c2n1hej8gkemy" path="res://scenes/FinishLine.tscn" id="2_sx1j4"]
+[ext_resource type="Script" uid="uid://nlr3ypmor7xo" path="res://scripts/Lane/goal.gd" id="1_6k3qi"]
+[ext_resource type="PackedScene" uid="uid://c2n1hej8gkemy" path="res://scenes/Lane/FinishLine.tscn" id="2_sx1j4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7sh37"]
 size = Vector2(56, 1272)

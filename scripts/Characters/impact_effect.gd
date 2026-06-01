@@ -71,6 +71,6 @@ func _build_and_play() -> void:
 ## Spawn a hit effect at a world position.
 ## load() avoids circular dependency. Cast to PackedScene fixes Variant inference.
 static func spawn_at(world_pos: Vector2, parent: Node) -> void:
-	var effect : Node      = (load("res://scenes/ImpactEffect.tscn") as PackedScene).instantiate()
+	var effect : Node      = (load("res://scenes/Characters/ImpactEffect.tscn") as PackedScene).instantiate()
 	parent.add_child(effect)
 	effect.global_position = world_pos
