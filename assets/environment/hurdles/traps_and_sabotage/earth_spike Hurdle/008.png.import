@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c5lnbqgy8anc2"
-path="res://.godot/imported/008.png-ae4d885f6dcf203b8135c398b07a9da6.ctex"
+path="res://.godot/imported/008.png-6238455562bdbf5167f89dacb5319a80.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/environment/Hurdles/traps_and_sabotage/earth_spike Hurdle/008.png"
-dest_files=["res://.godot/imported/008.png-ae4d885f6dcf203b8135c398b07a9da6.ctex"]
+source_file="res://assets/environment/hurdles/traps_and_sabotage/earth_spike Hurdle/008.png"
+dest_files=["res://.godot/imported/008.png-6238455562bdbf5167f89dacb5319a80.ctex"]
 
 [params]
 

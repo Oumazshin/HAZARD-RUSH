@@ -6,8 +6,8 @@ const FONT           := "res://assets/new/BoldPixels.ttf"
 const BTN_TEX        := "res://assets/new/button.png"
 const ENTRY_TEX      := "res://assets/new/Entry.png"
 const LOADING_TEX    := "res://assets/new/LOADING_CYCLE.png"
+const LOGO_PATH      := "res://assets/Logo/Logo.svg"
 
-# Cached load helpers ─────────────────────────────────────────────────────────
 var _font: Font = null
 
 func _ready() -> void:
@@ -18,7 +18,7 @@ func _ready() -> void:
 	_build_ui()
 
 func _build_ui() -> void:
-	# ── Background image (BG 3.jpg) filling the whole screen ──────────────────
+	# ── Background ────────────────────────────────────────────────────────────
 	if ResourceLoader.exists(BG_IMAGE):
 		var bg_tex := TextureRect.new()
 		bg_tex.texture = load(BG_IMAGE)
@@ -28,14 +28,14 @@ func _build_ui() -> void:
 		bg_tex.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(bg_tex)
 
-	# ── Semi-transparent dark overlay (keeps BG visible, text readable) ───────
+	# ── Dark overlay ──────────────────────────────────────────────────────────
 	var overlay := ColorRect.new()
 	overlay.color = Color(0.0, 0.0, 0.0, 0.45)
 	overlay.set_anchors_preset(PRESET_FULL_RECT)
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(overlay)
 
-	# ── Full-screen CenterContainer keeps the menu perfectly centered ─────────
+	# ── Full-screen center for menu VBox ──────────────────────────────────────
 	var center := CenterContainer.new()
 	center.set_anchors_preset(PRESET_FULL_RECT)
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -47,7 +47,7 @@ func _build_ui() -> void:
 	vbox.add_theme_constant_override("separation", 16)
 	center.add_child(vbox)
 
-	# ── Title decoration (Entry.png racing stripe above title) ─────────────────
+	# ── Top Entry stripe ──────────────────────────────────────────────────────
 	if ResourceLoader.exists(ENTRY_TEX):
 		var entry_rect := TextureRect.new()
 		entry_rect.texture = load(ENTRY_TEX)
@@ -57,13 +57,18 @@ func _build_ui() -> void:
 		entry_rect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		vbox.add_child(entry_rect)
 
-	# ── Title label ───────────────────────────────────────────────────────────
-	var title := Label.new()
-	title.text = "HAZARD RUSH"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_apply_font(title, 48, Color(1.0, 0.85, 0.0))
-	vbox.add_child(title)
+	# NOTE: The logo is NOT placed here.
+	# It floats independently at the top of the screen (see bottom of this
+	# function). Removing it from the VBox means the menu items below are
+	# centered freely without any logo-imposed gap pushing them down.
+	# If the logo SVG is missing, the fallback title label is added here.
+	if not ResourceLoader.exists(LOGO_PATH):
+		var title := Label.new()
+		title.text = "HAZARD RUSH"
+		title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_apply_font(title, 48, Color(1.0, 0.85, 0.0))
+		vbox.add_child(title)
 
 	# ── Subtitle ──────────────────────────────────────────────────────────────
 	var subtitle := Label.new()
@@ -73,7 +78,7 @@ func _build_ui() -> void:
 	_apply_font(subtitle, 16, Color(0.80, 0.80, 0.80))
 	vbox.add_child(subtitle)
 
-	# ── Bottom Entry stripe (mirror of top) ───────────────────────────────────
+	# ── Bottom Entry stripe ───────────────────────────────────────────────────
 	if ResourceLoader.exists(ENTRY_TEX):
 		var entry2 := TextureRect.new()
 		entry2.texture = load(ENTRY_TEX)
@@ -92,7 +97,7 @@ func _build_ui() -> void:
 	_apply_font(diff_label, 14, Color(0.88, 0.88, 0.88))
 	vbox.add_child(diff_label)
 
-	# ── Difficulty buttons row ─────────────────────────────────────────────────
+	# ── Difficulty buttons row ────────────────────────────────────────────────
 	var diff_hbox := HBoxContainer.new()
 	diff_hbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	diff_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -144,15 +149,38 @@ func _build_ui() -> void:
 	quit_btn.pressed.connect(_on_quit_pressed)
 	vbox.add_child(quit_btn)
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+	# ── Floating logo ─────────────────────────────────────────────────────────
+	# Added LAST so it renders on top of all other children.
+	# Uses PRESET_CENTER_TOP anchoring so it is always horizontally centered
+	# and pinned to the top of the screen regardless of window size.
+	# MOUSE_FILTER_IGNORE means it receives no mouse events and never blocks
+	# the buttons beneath it.
+	# Because it is NOT inside the VBox, it has zero effect on the layout of
+	# the menu items — they center freely as if the logo does not exist.
+	if ResourceLoader.exists(LOGO_PATH):
+		var logo_rect                 := TextureRect.new()
+		logo_rect.texture             = load(LOGO_PATH) as Texture2D
+		logo_rect.stretch_mode        = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		logo_rect.expand_mode         = TextureRect.EXPAND_IGNORE_SIZE
+		logo_rect.mouse_filter        = Control.MOUSE_FILTER_IGNORE
+		# Pin horizontally to screen center, vertically to screen top
+		logo_rect.set_anchors_preset(Control.PRESET_CENTER_TOP)
+		logo_rect.grow_horizontal     = Control.GROW_DIRECTION_BOTH
+		logo_rect.grow_vertical       = Control.GROW_DIRECTION_END
+		# 420 px wide (±210 from center), 220 px tall, 12 px from top edge
+		logo_rect.offset_left         = -210.0
+		logo_rect.offset_right        = 210.0
+		logo_rect.offset_top          = 12.0
+		logo_rect.offset_bottom       = 232.0
+		add_child(logo_rect)
 
+# ── Helpers ───────────────────────────────────────────────────────────────────
 func _apply_font(node: Control, font_size: int, color: Color) -> void:
 	if _font:
 		node.add_theme_font_override("font", _font)
 	node.add_theme_font_size_override("font_size", font_size)
 	node.add_theme_color_override("font_color", color)
 
-# Returns a StyleBoxTexture using one 16×16 state from button.png, 9-sliced.
 func _btn_style_tex(state_idx: int) -> StyleBoxTexture:
 	var sheet := load(BTN_TEX)
 	var atlas := AtlasTexture.new()
@@ -166,7 +194,6 @@ func _btn_style_tex(state_idx: int) -> StyleBoxTexture:
 	s.texture_margin_bottom = 3.0
 	return s
 
-# Returns a plain StyleBoxFlat (fallback when button.png absent).
 func _btn_style_flat(color: Color, selected: bool) -> StyleBoxFlat:
 	var s := StyleBoxFlat.new()
 	s.bg_color = color.lightened(0.15) if selected else color.darkened(0.2)
@@ -183,7 +210,6 @@ func _apply_button_style(btn: Button, color: Color, selected: bool) -> void:
 		btn.add_theme_stylebox_override("hover",   _btn_style_tex(1))
 		btn.add_theme_stylebox_override("pressed", _btn_style_tex(2))
 		btn.add_theme_stylebox_override("focus",   _btn_style_tex(3))
-		# Tint the button with the color to distinguish states
 		btn.modulate = color.lightened(0.2) if selected else Color.WHITE
 	else:
 		for state in ["normal", "hover", "pressed", "focus"]:
@@ -216,7 +242,6 @@ func _set_unselected(btn: Button, color: Color) -> void:
 	_apply_button_style(btn, color, false)
 
 # ── Callbacks ─────────────────────────────────────────────────────────────────
-
 func _on_difficulty_pressed(diff: GameState.Difficulty,
 		easy: Button, medium: Button, hard: Button) -> void:
 	GameState.difficulty = diff
@@ -229,18 +254,16 @@ func _on_difficulty_pressed(diff: GameState.Difficulty,
 		GameState.Difficulty.HARD:   _set_selected(hard,   Color(0.60, 0.10, 0.10))
 
 func _on_play_pressed() -> void:
-	# Transition overlay: fade to black with loading spinner, then change scene.
 	var cl := CanvasLayer.new()
 	cl.layer = 100
 	add_child(cl)
 
-	var overlay := ColorRect.new()
-	overlay.color = Color(0, 0, 0, 0)
-	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	cl.add_child(overlay)
+	var fade := ColorRect.new()
+	fade.color = Color(0, 0, 0, 0)
+	fade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cl.add_child(fade)
 
-	# Loading spinner from LOADING_CYCLE.png (row 0, 6 frames of 40×36)
 	if ResourceLoader.exists(LOADING_TEX):
 		var cycle_sheet := load(LOADING_TEX)
 		var sf := SpriteFrames.new()
@@ -260,9 +283,8 @@ func _on_play_pressed() -> void:
 		cl.add_child(spinner)
 		spinner.play("spin")
 
-	# Fade in the black overlay
 	var tw := create_tween()
-	tw.tween_property(overlay, "color", Color(0, 0, 0, 1.0), 0.45)
+	tw.tween_property(fade, "color", Color(0, 0, 0, 1.0), 0.45)
 	await tw.finished
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
 

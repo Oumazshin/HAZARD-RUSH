@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cncn8u0esbgwb"
-path="res://.godot/imported/On (38x38).png-2de06bafeffb6294ba90e5b862ac0fc6.ctex"
+path="res://.godot/imported/On (38x38).png-ce7eb37c1b0e2592ff2dacaecf078a38.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/environment/Hurdles/On (38x38).png"
-dest_files=["res://.godot/imported/On (38x38).png-2de06bafeffb6294ba90e5b862ac0fc6.ctex"]
+source_file="res://assets/environment/hurdles/On (38x38).png"
+dest_files=["res://.godot/imported/On (38x38).png-ce7eb37c1b0e2592ff2dacaecf078a38.ctex"]
 
 [params]
 

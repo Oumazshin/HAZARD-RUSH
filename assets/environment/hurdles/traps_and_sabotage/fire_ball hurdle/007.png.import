@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cpdt0jcqjp8y6"
-path="res://.godot/imported/007.png-6473b61a32db5aa4562a9e2df88a09c2.ctex"
+path="res://.godot/imported/007.png-b79311155b6204022b8b015c36bcb89e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/environment/Hurdles/traps_and_sabotage/fire_ball hurdle/007.png"
-dest_files=["res://.godot/imported/007.png-6473b61a32db5aa4562a9e2df88a09c2.ctex"]
+source_file="res://assets/environment/hurdles/traps_and_sabotage/fire_ball hurdle/007.png"
+dest_files=["res://.godot/imported/007.png-b79311155b6204022b8b015c36bcb89e.ctex"]
 
 [params]
 
