@@ -1,8 +1,6 @@
-# idastar_planner.gd
-# res://scripts/idastar_planner.gd
-#
+# scripts/Algos/idastar_planner.gd
 # IDA* (Iterative-Deepening A*) — Memory-Bounded Fallback Planner
-# Activated when: Easy difficulty (N=2) OR A* returns FAILURE
+# Activated when: Easy difficulty (N=2) OR A* returns SPRINT_STEADY fallback
 #
 # Identical output contract to AStarPlanner.plan() — returns a String action.
 # Uses O(N) stack memory instead of O(b^N) frontier hash table.
@@ -23,22 +21,26 @@ var lookahead_n: int = 3
 
 func setup(difficulty: int) -> void:
 	match difficulty:
-		0: lookahead_n = 2  # Easy
-		1: lookahead_n = 3  # Medium
-		2: lookahead_n = 5  # Hard
+		0: lookahead_n = 2   # Easy
+		1: lookahead_n = 3   # Medium
+		2: lookahead_n = 5   # Hard
 
 # ── Public API — same signature as AStarPlanner.plan() ───────────────────────
+# FIX: increments GameState.ai_idastar_fallbacks so the ResultsScreen can
+#      report how many times IDA* was invoked during the match.
 func plan(ai_kei: float, window: Array) -> String:
+	GameState.ai_idastar_fallbacks += 1   # ← counter increment (was missing)
+
 	if window.is_empty():
 		return "SPRINT_AGGRESSIVE" if ai_kei > 0.5 else "SPRINT_STEADY"
 
-	var start := {"kei": ai_kei, "obs_idx": 0}
+	var start  := {"kei": ai_kei, "obs_idx": 0}
 
 	# First threshold = h-value of the start node (GDD pseudocode)
-	var cutoff: float = _heuristic(start, window)
+	var cutoff : float = _heuristic(start, window)
 
 	# Iterative deepening loop — raise threshold each pass
-	for _pass in range(20):  # safety cap
+	for _pass in range(20):   # safety cap: 20 iterations is more than enough
 		var result := _dls(start, [], 0.0, cutoff, window)
 
 		if result[0] != null:
@@ -48,10 +50,10 @@ func plan(ai_kei: float, window: Array) -> String:
 
 		var new_cutoff: float = result[1]
 		if new_cutoff == INF:
-			break  # No solution exists in this space
+			break   # No solution reachable within this obstacle window
 		cutoff = new_cutoff
 
-	return "SPRINT_STEADY"  # Final fallback
+	return "SPRINT_STEADY"   # Final fallback
 
 # ── DLS — Depth-Limited Search bounded by f-cost threshold ───────────────────
 # Returns [action_sequence_or_null, min_f_that_exceeded_cutoff]
@@ -61,20 +63,20 @@ func _dls(state: Dictionary, actions: Array, g: float,
 	var f := g + _heuristic(state, window)
 
 	if f > cutoff:
-		return [null, f]  # Over threshold — report f for next cutoff
+		return [null, f]   # Over threshold — report f for next cutoff
 
 	if _is_goal(state, window):
-		return [actions, f]  # Solution found
+		return [actions, f]   # Solution found
 
 	var min_t: float = INF
 
 	for action in _get_actions(state, window):
 		var ns     := _apply_action(state, action, window)
-		var g2: float = g + ACTION_COSTS[action]
+		var g2     : float = g + (ACTION_COSTS[action] as float)
 		var result := _dls(ns, actions + [action], g2, cutoff, window)
 
 		if result[0] != null:
-			return result  # Propagate solution up
+			return result   # Propagate solution up the call stack
 
 		if result[1] < min_t:
 			min_t = result[1]
@@ -99,7 +101,7 @@ func _get_actions(state: Dictionary, window: Array) -> Array:
 		else ["SLIDE", "SPRINT_STEADY", "CONSERVE"]
 
 func _apply_action(state: Dictionary, action: String, window: Array) -> Dictionary:
-	var ns := state.duplicate()
+	var ns    := state.duplicate()
 	ns["kei"] = max(0.1, state["kei"] - ACTION_COSTS[action])
 	if state["obs_idx"] < window.size():
 		var obs: Dictionary = window[state["obs_idx"]]

@@ -4,17 +4,17 @@ extends CharacterBody2D
 #  PLAYER CONTROLLER
 # ─────────────────────────────────────────────────────────────────────────────
 
-# --- Movement constants (INCREASED SPEED & MOMENTUM) ---
-const MAX_SPEED       : float = 800.0   # Increased from 600
-const SPEED_INCREMENT : float = 150.0   # Increased from 100
-const PENALTY_DROP    : float = 200.0   # Increased from 150
-const JUMP_VELOCITY   : float = -500.0  # Increased to match speed
-const GRAVITY         : float = 1200.0  # Increased for snappier jumps
+# --- Movement constants ---
+const MAX_SPEED       : float = 800.0
+const SPEED_INCREMENT : float = 150.0
+const PENALTY_DROP    : float = 200.0
+const JUMP_VELOCITY   : float = -500.0
+const GRAVITY         : float = 1200.0
 
-# --- KEI-aligned decay constants (Scaled for 800 Max Speed) ---
-const SPEED_DECAY_PER_SEC   : float = 384.0  # 0.008 * 800 * 60fps
-const STUMBLE_DECAY_PER_SEC : float = 720.0  # 0.015 * 800 * 60fps
-const KEI_FLOOR_SPEED       : float = 80.0   # 10% of 800
+# --- KEI-aligned decay constants ---
+const SPEED_DECAY_PER_SEC   : float = 200.0
+const STUMBLE_DECAY_PER_SEC : float = 720.0
+const KEI_FLOOR_SPEED       : float = 80.0
 
 const MAX_TAP_GAP       : float = 0.200
 const SABOTAGE_COOLDOWN : float = 6.0
@@ -34,6 +34,21 @@ var _sabotage_charges  : int    = 0
 
 var _shield_active     : bool = false
 var _jump_boost_active : bool = false
+
+# ── FIX: Sprint streak tracking ──────────────────────────────────────────────
+# Incremented on every valid alternating A/D keypress within MAX_TAP_GAP.
+# Reset to 0 on rhythm break or collision stumble.
+# Highest value reached is written to GameState.player_best_streak.
+var _current_streak    : int   = 0
+
+# ── NOTE: Hurdle/slide clear tracking is handled by hurdle.gd._process() ─────
+# Each hurdle calls on_hurdle_cleared(type) when the player moves 20 px past
+# it without a crash. This is more reliable than a group-scan from player.gd
+# because it runs in the hurdle's own coordinate space.
+
+# FIX: IDs of hurdles already counted — prevents double-counting as the
+# player's position passes each obstacle.  Populated by _track_hurdles_passed().
+var _passed_hurdle_ids : Array = []
 
 @onready var anim : AnimationPlayer = $AnimationPlayer
 @export var speed_bar : ProgressBar
@@ -93,16 +108,24 @@ func _physics_process(delta: float) -> void:
 	if speed_bar:
 		speed_bar.max_value = MAX_SPEED
 		speed_bar.value     = current_speed
-		
+
+	# ── Sync live values to GameState ────────────────────────────────────────
 	GameState.player_kei      = current_speed / MAX_SPEED
 	GameState.player_position = global_position.x
+
+	# FIX: Track the maximum x-position reached (used by ResultsScreen
+	#      for the "Distance" stat and for time-up tiebreaker comparison).
+	GameState.player_distance = maxf(GameState.player_distance, global_position.x)
+
+	# FIX: Count static hurdles the player moves past.
+	_track_hurdles_passed()
 
 func handle_animations() -> void:
 	if is_stumbling:       play_anim("stumble"); return
 	if is_sliding:         play_anim("slide");   return
 	if not is_on_floor():  play_anim("jump");    return
 	if current_speed > 10:
-		anim.speed_scale = current_speed / 500.0 # Adjusted scale for new speed
+		anim.speed_scale = current_speed / 500.0
 		play_anim("run")
 	else:
 		anim.speed_scale = 1.0
@@ -120,6 +143,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if is_stumbling: return
 
+	# FIX: Ignore sprint inputs until the race is actually running.
+	# Without this guard the player can press A/D during the countdown and
+	# pre-build current_speed, launching at full velocity the instant
+	# GameState enters the RACING phase.
+	if not GameState.is_racing(): return
+
 	if event is InputEventKey and event.pressed and not event.echo:
 		var key_pressed : String = ""
 		if event.keycode == KEY_A: key_pressed = "A"
@@ -129,12 +158,21 @@ func _unhandled_input(event: InputEvent) -> void:
 			var now : float = Time.get_ticks_msec() / 1000.0
 
 			if key_pressed == last_key_pressed:
-				current_speed = max(KEI_FLOOR_SPEED, current_speed - PENALTY_DROP)
+				# Same key pressed — rhythm break penalty
+				current_speed   = max(KEI_FLOOR_SPEED, current_speed - PENALTY_DROP)
+				_current_streak = 0   # FIX: break streak on same-key press
 			else:
 				if _last_tap_time >= 0.0 and (now - _last_tap_time) > MAX_TAP_GAP:
-					current_speed = max(KEI_FLOOR_SPEED, current_speed - PENALTY_DROP)
+					# Gap too long — rhythm break penalty
+					current_speed   = max(KEI_FLOOR_SPEED, current_speed - PENALTY_DROP)
+					_current_streak = 0   # FIX: break streak on gap violation
 				else:
-					current_speed = min(current_speed + SPEED_INCREMENT, MAX_SPEED)
+					# Valid alternating press — speed gain
+					current_speed   = min(current_speed + SPEED_INCREMENT, MAX_SPEED)
+					# FIX: increment sprint streak and update GameState best
+					_current_streak += 1
+					if _current_streak > GameState.player_best_streak:
+						GameState.player_best_streak = _current_streak
 				last_key_pressed = key_pressed
 				_last_tap_time   = now
 
@@ -144,15 +182,64 @@ func _try_sabotage() -> void:
 		_ai_sabotage_sys = get_tree().get_first_node_in_group("sabotage_system_ai")
 	if _ai_sabotage_sys == null: return
 	if _ai_sabotage_sys.is_locked_out(): return
-	
+
 	if _sabotage_charges > 0:
 		_sabotage_charges -= 1
 	elif _sabotage_cooldown > 0.0:
 		return
 	else:
 		_sabotage_cooldown = SABOTAGE_COOLDOWN
-		
+
 	_ai_sabotage_sys.trigger("player")
+	# FIX: count every successful sabotage fire (not blocked by lockout/cooldown)
+	GameState.player_sabotages_used += 1
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  FIX: Position-based hurdle clear tracking
+#
+#  ROOT CAUSE OF PREVIOUS 0-COUNTS:
+#  SpikeHurdle.tscn and SawHurdle.tscn have NO script attached, so
+#  h.get("type") always returns null and the old type-check guard silently
+#  blocked every count. Using the node NAME is reliable regardless of whether
+#  a script is attached.
+#
+#  Lane filtering: PlayerLane.is_ancestor_of(hurdle) correctly returns true
+#  for hurdles in PlayerLane and false for hurdles in AILane, so cross-lane
+#  contamination in the split-screen setup is prevented.
+#
+#  SpikeHurdle = ground-level spike = player must JUMP over   → hurdles_dodged
+#  SawHurdle   = elevated circular saw = player must SLIDE under → slides_done
+# ─────────────────────────────────────────────────────────────────────────────
+func _track_hurdles_passed() -> void:
+	if not GameState.is_racing():
+		return
+	var lane := get_parent()
+	for h in get_tree().get_nodes_in_group("hurdles"):
+		# Only count hurdles in the player's own lane
+		if lane != null and not lane.is_ancestor_of(h):
+			continue
+		# Exclude dynamic sabotage hazards (earth spikes, fireballs)
+		if h.has_meta("sabotage"):
+			continue
+		var hid := h.get_instance_id()
+		if hid in _passed_hurdle_ids:
+			continue
+		# Hurdle is considered passed when the player is 20 px beyond it
+		if h.global_position.x < global_position.x - 20.0:
+			_passed_hurdle_ids.append(hid)
+			var hname := String(h.name)
+			if hname.begins_with("Spike"):
+				GameState.player_hurdles_dodged += 1   # SpikeHurdle → JUMP
+			elif hname.begins_with("Saw"):
+				GameState.player_slides_done += 1      # SawHurdle   → SLIDE
+
+# Called by hurdle.gd._process() as a secondary path (only active if
+# hurdle.gd is ever attached to a hurdle scene).
+func on_hurdle_cleared(hurdle_type: int) -> void:
+	if hurdle_type == 0:
+		GameState.player_hurdles_dodged += 1
+	else:
+		GameState.player_slides_done += 1
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  Power-up system & VFX
@@ -169,25 +256,25 @@ func receive_powerup(effect: int, value: float) -> void:
 		ui.show_powerup(true, effect, value)
 
 	match effect:
-		0: 
+		0:
 			_apply_speed_boost(0.30, value)
-			_play_powerup_vfx(Color(0.35, 1.0, 0.35)) # Green Apple
-		1: 
+			_play_powerup_vfx(Color(0.35, 1.0, 0.35))
+		1:
 			_apply_debuff_to_opponent("slow", 0.25, value)
-		2: 
+		2:
 			_shield_active = true
-			_play_powerup_vfx(Color(0.3, 0.85, 1.0)) # Cyan Shield
-		3: 
+			_play_powerup_vfx(Color(0.3, 0.85, 1.0))
+		3:
 			_apply_ghost_mode(value)
-		4: 
-			_play_powerup_vfx(Color(1.0, 0.85, 0.2)) # Gold Melon
-		5: 
+		4:
+			_play_powerup_vfx(Color(1.0, 0.85, 0.2))
+		5:
 			_sabotage_cooldown = 0.0; _sabotage_charges += 1
-			_play_powerup_vfx(Color(1.0, 0.55, 0.15)) # Orange
-		6: 
+			_play_powerup_vfx(Color(1.0, 0.55, 0.15))
+		6:
 			_apply_high_jump(value)
-			_play_powerup_vfx(Color(1.0, 0.5, 0.9)) # Pink Pineapple
-		7: 
+			_play_powerup_vfx(Color(1.0, 0.5, 0.9))
+		7:
 			_apply_debuff_to_opponent("freeze", 0.0, value)
 
 func _apply_speed_boost(factor: float, _duration: float) -> void:
@@ -201,7 +288,7 @@ func _apply_high_jump(window: float) -> void:
 func _apply_ghost_mode(duration: float) -> void:
 	var hitbox := get_node_or_null("Hitbox")
 	if hitbox: hitbox.set_deferred("monitoring", false)
-	modulate = Color(1.0, 1.0, 1.0, 0.45) # Transparent Ghost
+	modulate = Color(1.0, 1.0, 1.0, 0.45)
 	await get_tree().create_timer(duration).timeout
 	if hitbox and is_instance_valid(hitbox): hitbox.set_deferred("monitoring", true)
 	modulate = Color.WHITE
@@ -214,18 +301,18 @@ func _apply_debuff_to_opponent(debuff_type: String, factor: float, duration: flo
 func apply_debuff(debuff_type: String, factor: float, duration: float) -> void:
 	match debuff_type:
 		"slow":
-			_play_powerup_vfx(Color(1.0, 0.95, 0.2)) # Banana Yellow
+			_play_powerup_vfx(Color(1.0, 0.95, 0.2))
 			current_speed = max(KEI_FLOOR_SPEED, current_speed * (1.0 - factor))
 			await get_tree().create_timer(duration).timeout
 		"freeze":
-			_play_powerup_vfx(Color(0.5, 0.9, 1.0)) # Ice Blue
+			_play_powerup_vfx(Color(0.5, 0.9, 1.0))
 			if not is_stumbling:
 				is_stumbling = true
 				await get_tree().create_timer(duration).timeout
 				is_stumbling = false
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  Collision and hit (WITH EXTENDED INVULNERABILITY)
+#  Collision and hit (with extended invulnerability)
 # ─────────────────────────────────────────────────────────────────────────────
 
 func _on_hitbox_area_entered(area: Area2D) -> void:
@@ -242,6 +329,15 @@ func trigger_momentum_crash(is_sabotage: bool = false) -> void:
 	if is_stumbling: return
 	is_stumbling = true
 
+	# FIX: Break the sprint streak on any collision stumble.
+	_current_streak = 0
+
+	# FIX: Any sabotage that hits the PLAYER was necessarily fired by the AI
+	# (the player fires into the AI's lane, not their own). Count it here so
+	# the ResultsScreen can compute the AI's sabotage hit rate.
+	if is_sabotage:
+		GameState.ai_sabotage_hits += 1
+
 	GameState.apply_kei_penalty("player", "SABOTAGE" if is_sabotage else "HIGH_HURDLE")
 	current_speed = GameState.player_kei * MAX_SPEED
 
@@ -253,19 +349,18 @@ func trigger_momentum_crash(is_sabotage: bool = false) -> void:
 		$Camera2D2.offset = Vector2.ZERO
 	await get_tree().create_timer(0.35).timeout
 	is_stumbling = false
-	
+
 	var hitbox := get_node_or_null("Hitbox")
 	if hitbox:
 		hitbox.set_deferred("monitoring", false)
-		
-		# Visual Invulnerability Blinking Effect
-		var blink_tw = create_tween().set_loops(6) # Blinks 6 times over 1.5s
+
+		# Visual invulnerability blinking (6 blinks over 1.5 s)
+		var blink_tw = create_tween().set_loops(6)
 		blink_tw.tween_property(self, "modulate:a", 0.3, 0.125)
 		blink_tw.tween_property(self, "modulate:a", 1.0, 0.125)
-		
-		# INCREASED INVULNERABILITY WINDOW (1.5 seconds)
+
 		await get_tree().create_timer(1.5).timeout
-		
+
 		blink_tw.kill()
 		modulate.a = 1.0
 		hitbox.set_deferred("monitoring", true)

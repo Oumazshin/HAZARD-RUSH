@@ -4,18 +4,19 @@ extends CharacterBody2D
 #  AI CONTROLLER (Orchestrator)
 # ─────────────────────────────────────────────────────────────────────────────
 
-# --- Movement constants (INCREASED SPEED & MOMENTUM) ---
-const MAX_SPEED    : float = 800.0   # Increased from 600
-const JUMP_VELOCITY: float = -500.0  # Increased to match speed
-const GRAVITY      : float = 1200.0  # Increased for snappier jumps
+# --- Movement constants ---
+const MAX_SPEED    : float = 800.0
+const JUMP_VELOCITY: float = -500.0
+const GRAVITY      : float = 1200.0
 
-# --- KEI-aligned decay constants (Scaled for 800 Max Speed) ---
-const SPEED_DECAY_PER_SEC  : float = 384.0   
-const STUMBLE_DECAY_PER_SEC: float = 720.0   
-const KEI_FLOOR_SPEED      : float = 80.0    
+# --- KEI-aligned decay constants ---
+const SPEED_DECAY_PER_SEC  : float = 200.0
+const STUMBLE_DECAY_PER_SEC: float = 720.0
+const KEI_FLOOR_SPEED      : float = 80.0
 
-const GREEDY_WINDOW_FAR : float = 0.40
-const GREEDY_WINDOW_NEAR: float = 0.15
+# --- Greedy evasion time-to-contact window (seconds) ---
+const GREEDY_WINDOW_FAR  : float = 0.40
+const GREEDY_WINDOW_NEAR : float = 0.15
 
 var rhythm_timer   : float = 0.0
 var rhythm_interval: float = 0.15
@@ -32,10 +33,10 @@ var evasion_pending: bool   = false
 var obstacle_seen  : String = ""
 var reaction_delay : float  = 0.15
 
-var planner              : AStarPlanner = null
-var plan_frame_counter   : int          = 0
-var plan_interval        : int          = 15
-var current_planned_action: String      = "SPRINT_STEADY"
+var planner               : AStarPlanner    = null
+var plan_frame_counter    : int             = 0
+var plan_interval         : int             = 15
+var current_planned_action: String          = "SPRINT_STEADY"
 
 var ida_planner: IDAStarPlanner = null
 
@@ -48,7 +49,7 @@ var sabotage_system: Node = null
 
 var sprite       : Sprite2D
 var anim         : AnimationPlayer
-var jump_raycast : RayCast2D   
+var jump_raycast : RayCast2D
 var slide_raycast: RayCast2D
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -63,6 +64,8 @@ func _ready() -> void:
 
 	sabotage_system = get_tree().get_first_node_in_group("sabotage_system_player")
 
+	# FIX: Apply difficulty parameters to movement and timing variables.
+	# These map directly to Table 4 of the Game Design Document.
 	match GameState.difficulty:
 		GameState.Difficulty.EASY:
 			reaction_delay         = 0.25
@@ -77,6 +80,7 @@ func _ready() -> void:
 			rhythm_interval        = 0.10
 			sabotage_cooldown_time = 5.0
 
+	# Initialise algorithm instances with difficulty-specific parameters.
 	planner     = AStarPlanner.new();     planner.setup(GameState.difficulty)
 	ida_planner = IDAStarPlanner.new();   ida_planner.setup(GameState.difficulty)
 	minimax     = MinimaxEvaluator.new(); minimax.setup(GameState.difficulty)
@@ -107,8 +111,7 @@ func _physics_process(delta: float) -> void:
 		if rhythm_timer >= rhythm_interval:
 			rhythm_timer  = 0.0
 			last_tap      = 1 - last_tap
-			# Adjusted AI speed gain per tap to account for new MAX_SPEED
-			current_speed = min(current_speed + 150.0, MAX_SPEED) 
+			current_speed = min(current_speed + 150.0, MAX_SPEED)
 
 	if not is_stumbling:
 		current_speed -= SPEED_DECAY_PER_SEC * delta
@@ -146,8 +149,14 @@ func _physics_process(delta: float) -> void:
 	if anim:
 		_handle_animation()
 
+	# Sync GameState with current AI values every physics frame.
 	GameState.ai_kei      = current_speed / MAX_SPEED
 	GameState.ai_position = global_position.x
+
+	# FIX: Track the maximum x-distance reached so the ResultsScreen
+	#      can display a meaningful "Distance" stat even after the race ends.
+	GameState.ai_distance = maxf(GameState.ai_distance, global_position.x)
+
 	_check_finish_line()
 
 func _check_finish_line() -> void:
@@ -159,12 +168,15 @@ func _check_finish_line() -> void:
 
 func _run_astar_planner() -> void:
 	var window := _get_obstacle_window()
-	var ai_kei := GameState.ai_kei
+	var ai_kei : float = GameState.ai_kei
 
 	if GameState.difficulty == GameState.Difficulty.EASY:
+		# On Easy, always use IDA* (its counter is incremented inside plan()).
 		current_planned_action = ida_planner.plan(ai_kei, window)
 		return
 
+	# On Medium/Hard: try A* first (counter incremented inside plan()),
+	# fall back to IDA* if A* returns its default fallback string.
 	var result : String = planner.plan(ai_kei, window)
 	if result.is_empty():
 		current_planned_action = ida_planner.plan(ai_kei, window)
@@ -195,6 +207,7 @@ func _on_trigger_window_active() -> void:
 		"player_in_dense_zone"  : _is_player_in_dense_zone(),
 	}
 	var depth    : int    = int(GameState.get_difficulty_param("minimax_depth"))
+	# Minimax counter is incremented inside MinimaxEvaluator.decide().
 	var decision : String = minimax.decide(snapshot, depth, true)
 
 	if decision == "ACTIVATE":
@@ -202,6 +215,7 @@ func _on_trigger_window_active() -> void:
 			_sabotage_charges -= 1
 		else:
 			sabotage_cooldown = sabotage_cooldown_time
+		GameState.ai_sabotages_activated += 1   # FIX: track AI sabotage fires
 		if sabotage_system and is_instance_valid(sabotage_system):
 			sabotage_system.trigger("ai")
 
@@ -212,6 +226,7 @@ func _is_player_in_dense_zone() -> bool:
 			count += 1
 	return count >= 2
 
+#  Greedy Best-First Reflex — TTC window
 func _check_greedy_reflex() -> void:
 	var my_lane    := get_parent()
 	var nearest_dx : float = INF
@@ -238,7 +253,7 @@ func _check_greedy_reflex() -> void:
 func _play_powerup_vfx(glow_color: Color) -> void:
 	var tw = create_tween()
 	tw.tween_property(self, "modulate", glow_color, 0.15)
-	tw.tween_property(self, "modulate", Color.WHITE, 0.35)
+	tw.tween_property(self, "modulate", Color.WHITE,  0.35)
 
 func receive_powerup(effect: int, value: float) -> void:
 	var ui = get_tree().get_first_node_in_group("game_ui")
@@ -246,32 +261,33 @@ func receive_powerup(effect: int, value: float) -> void:
 		ui.show_powerup(false, effect, value)
 
 	match effect:
-		0: 
+		0:
 			current_speed = min(current_speed + MAX_SPEED * 0.30, MAX_SPEED)
-			_play_powerup_vfx(Color(0.35, 1.0, 0.35)) # Green Apple
-		1: 
+			_play_powerup_vfx(Color(0.35, 1.0, 0.35))
+		1:
 			_apply_debuff_to_player("slow", 0.25, value)
-		2: 
+		2:
 			_shield_active = true
-			_play_powerup_vfx(Color(0.3, 0.85, 1.0)) # Cyan Shield
-		3: 
+			_play_powerup_vfx(Color(0.3, 0.85, 1.0))
+		3:
 			_apply_ghost_mode(value)
-		4: 
-			_play_powerup_vfx(Color(1.0, 0.85, 0.2)) # Gold Melon
-		5: 
+		4:
+			_play_powerup_vfx(Color(1.0, 0.85, 0.2))
+		5:
 			sabotage_cooldown = 0.0; _sabotage_charges += 1
-			_play_powerup_vfx(Color(1.0, 0.55, 0.15)) # Orange
+			_play_powerup_vfx(Color(1.0, 0.55, 0.15))
 		6:
 			_high_jump_pending = true
-			get_tree().create_timer(value).timeout.connect(func() -> void: _high_jump_pending = false)
-			_play_powerup_vfx(Color(1.0, 0.5, 0.9)) # Pink Pineapple
-		7: 
+			get_tree().create_timer(value).timeout.connect(
+				func() -> void: _high_jump_pending = false)
+			_play_powerup_vfx(Color(1.0, 0.5, 0.9))
+		7:
 			_apply_debuff_to_player("freeze", 0.0, value)
 
 func _apply_ghost_mode(duration: float) -> void:
 	var hitbox := get_node_or_null("Hitbox")
 	if hitbox: hitbox.set_deferred("monitoring", false)
-	modulate = Color(1.0, 1.0, 1.0, 0.45) # Transparent ghost
+	modulate = Color(1.0, 1.0, 1.0, 0.45)
 	await get_tree().create_timer(duration).timeout
 	if hitbox and is_instance_valid(hitbox): hitbox.set_deferred("monitoring", true)
 	modulate = Color.WHITE
@@ -284,29 +300,39 @@ func _apply_debuff_to_player(debuff_type: String, factor: float, duration: float
 func apply_debuff(debuff_type: String, factor: float, duration: float) -> void:
 	match debuff_type:
 		"slow":
-			_play_powerup_vfx(Color(1.0, 0.95, 0.2)) # Banana Yellow
+			_play_powerup_vfx(Color(1.0, 0.95, 0.2))
 			current_speed = max(KEI_FLOOR_SPEED, current_speed * (1.0 - factor))
 			await get_tree().create_timer(duration).timeout
 		"freeze":
-			_play_powerup_vfx(Color(0.5, 0.9, 1.0)) # Ice Blue
+			_play_powerup_vfx(Color(0.5, 0.9, 1.0))
 			if not is_stumbling:
 				is_stumbling = true
 				await get_tree().create_timer(duration).timeout
 				is_stumbling = false
 
 func _trigger_evasion(obstacle_type: String) -> void:
+	# FIX: Increment greedy counter here so every reflex activation is
+	#      captured regardless of whether the evasion ultimately succeeds.
+	GameState.ai_greedy_count += 1
+
 	evasion_pending = true
 	obstacle_seen   = obstacle_type
 	await get_tree().create_timer(reaction_delay).timeout
 	evasion_pending = false
 	if is_stumbling: return
+
 	if obstacle_seen == "slide" and is_on_floor():
+		# FIX: Count successful slide evasions for the ResultsScreen.
+		GameState.ai_slides_done += 1
 		_enable_slide_shapes()
 		is_sliding = true
 		await get_tree().create_timer(1.0).timeout
 		is_sliding = false
 		_disable_slide_shapes()
+
 	elif obstacle_seen == "jump" and is_on_floor():
+		# FIX: Count successful jump evasions for the ResultsScreen.
+		GameState.ai_hurdles_dodged += 1
 		var effective_jump := JUMP_VELOCITY * 2.0 if _high_jump_pending else JUMP_VELOCITY
 		velocity.y          = effective_jump
 		if _high_jump_pending: _high_jump_pending = false
@@ -324,18 +350,21 @@ func _disable_slide_shapes() -> void:
 	var slh := get_node_or_null("Hitbox/SlideHitbox"); if slh: slh.disabled = true
 
 func _handle_animation() -> void:
-	if is_stumbling:         anim.play("stumble")
-	elif is_sliding:         anim.play("slide")
-	elif not is_on_floor():  anim.play("jump")
-	elif current_speed > 10: 
-		anim.speed_scale = current_speed / 500.0 # Adjusted scale for new speed
+	if is_stumbling:
+		anim.play("stumble")
+	elif is_sliding:
+		anim.play("slide")
+	elif not is_on_floor():
+		anim.play("jump")
+	elif current_speed > 10:
+		anim.speed_scale = current_speed / 500.0
 		anim.play("run")
-	else:                    
+	else:
 		anim.speed_scale = 1.0
 		anim.play("idle")
 
 # ─────────────────────────────────────────────────────────────────────────────
-#  Collision and hit (WITH EXTENDED INVULNERABILITY)
+#  Collision and hit (with extended invulnerability)
 # ─────────────────────────────────────────────────────────────────────────────
 
 func _on_hitbox_area_entered(area: Area2D) -> void:
@@ -359,19 +388,18 @@ func _trigger_stumble(is_sabotage: bool = false) -> void:
 
 	await get_tree().create_timer(GameState.STUMBLE_DURATION).timeout
 	is_stumbling = false
-	
+
 	var hitbox := get_node_or_null("Hitbox")
 	if hitbox:
 		hitbox.set_deferred("monitoring", false)
-		
-		# Visual Invulnerability Blinking Effect
-		var blink_tw = create_tween().set_loops(6) # Blinks 6 times over 1.5s
+
+		# Visual invulnerability blinking effect (6 blinks over 1.5 s)
+		var blink_tw = create_tween().set_loops(6)
 		blink_tw.tween_property(self, "modulate:a", 0.3, 0.125)
 		blink_tw.tween_property(self, "modulate:a", 1.0, 0.125)
-		
-		# INCREASED INVULNERABILITY WINDOW (1.5 seconds)
+
 		await get_tree().create_timer(1.5).timeout
-		
+
 		blink_tw.kill()
 		modulate.a = 1.0
 		hitbox.set_deferred("monitoring", true)

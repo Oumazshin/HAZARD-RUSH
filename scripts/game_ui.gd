@@ -2,6 +2,11 @@
 # ─────────────────────────────────────────────────────────────────────────────
 extends CanvasLayer
 
+# FIX: Emitted by run_countdown() at the exact moment "GO!" appears on screen.
+# main.gd awaits this signal instead of a fixed timer so the race phase changes
+# to RACING in sync with the visual — not 1 second early during "1".
+signal countdown_go_reached
+
 # ── Asset paths ───────────────────────────────────────────────────────────────
 const FONT_PATH          : String = "res://assets/Global/text/fonts/BoldPixels.ttf"
 const POWERUP_ASSET_BASE : String = "res://assets/environment/Fruits for PowerUps/"
@@ -520,6 +525,11 @@ func run_countdown() -> void:
 	_cdown_num.reset_size()
 	_cdown_num.pivot_offset = _cdown_num.get_minimum_size() / 2.0
 	_cdown_num.scale = Vector2(0.2, 0.2)
+	
+	# FIX: Signal main.gd that GO! is now visible. main.gd awaits this to
+	# set RACING phase — so the race starts exactly when GO! appears, not
+	# 1 second earlier during "1" as the old create_timer(3.0) caused.
+	countdown_go_reached.emit()
 	
 	if AudioManager.has_method("play_sfx"):
 		AudioManager.play_sfx("go")

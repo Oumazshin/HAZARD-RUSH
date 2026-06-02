@@ -1,19 +1,24 @@
 class_name MinimaxEvaluator
+
 # Depth limit scales with difficulty (GDD Table 4)
 var depth_limit: int = 3
 
 func setup(difficulty: int) -> void:
 	match difficulty:
-		0: depth_limit = 2  # Easy
-		1: depth_limit = 3  # Medium
-		2: depth_limit = 4  # Hard
+		0: depth_limit = 2   # Easy
+		1: depth_limit = 3   # Medium
+		2: depth_limit = 4   # Hard
 
 # --- Main decision function ---
-# Returns "ACTIVATE" or "PASS"
+# Returns "ACTIVATE" or "PASS".
 # _search_depth is intentionally unused here — depth_limit (set via setup())
 # drives the tree; the parameter is kept in the signature so callers
 # (opponent_ai.gd) can pass a depth hint for future extensibility.
+# FIX: increments GameState.ai_minimax_activations so the ResultsScreen can
+#      report how many sabotage decisions Minimax made during the match.
 func decide(state: Dictionary, _search_depth: int, is_maximizing: bool) -> String:
+	GameState.ai_minimax_activations += 1   # ← counter increment (was missing)
+
 	if is_maximizing:
 		var result = _max_value(state, -INF, INF, 0)
 		return result[1]
@@ -25,16 +30,16 @@ func decide(state: Dictionary, _search_depth: int, is_maximizing: bool) -> Strin
 func _max_value(state: Dictionary, alpha: float, beta: float, depth: int) -> Array:
 	if depth >= depth_limit:
 		return [_eval(state), "PASS"]
-	var v = -INF
+	var v         = -INF
 	var best_move = "PASS"
 	for action in ["ACTIVATE", "PASS"]:
-		var ns = _apply_action(state, action)
+		var ns     = _apply_action(state, action)
 		var result = _min_value(ns, alpha, beta, depth + 1)
 		if result[0] > v:
-			v = result[0]
+			v         = result[0]
 			best_move = action
 		alpha = max(alpha, v)
-		if v >= beta:  # Beta cutoff — prune remaining
+		if v >= beta:   # Beta cutoff — prune remaining branches
 			return [v, best_move]
 	return [v, best_move]
 
@@ -42,16 +47,16 @@ func _max_value(state: Dictionary, alpha: float, beta: float, depth: int) -> Arr
 func _min_value(state: Dictionary, alpha: float, beta: float, depth: int) -> Array:
 	if depth >= depth_limit:
 		return [_eval(state), "SPRINT_THROUGH"]
-	var v = INF
+	var v         = INF
 	var best_move = "SPRINT_THROUGH"
 	for action in ["SPRINT_THROUGH", "EVADE"]:
-		var ns = _apply_action(state, action)
+		var ns     = _apply_action(state, action)
 		var result = _max_value(ns, alpha, beta, depth + 1)
 		if result[0] < v:
-			v = result[0]
+			v         = result[0]
 			best_move = action
 		beta = min(beta, v)
-		if v <= alpha:  # Alpha cutoff — prune remaining
+		if v <= alpha:   # Alpha cutoff — prune remaining branches
 			return [v, best_move]
 	return [v, best_move]
 
@@ -63,7 +68,7 @@ func _eval(state: Dictionary) -> float:
 	var dense   = 0.30 if state["player_in_dense_zone"] else 0.0
 	return clamp((0.40 * kei_adv) + (0.35 * vuln) + dense, -1.0, 1.0)
 
-# --- Simulate outcome of each action ---
+# --- Simulate outcome of each action on the snapshot state ---
 func _apply_action(state: Dictionary, action: String) -> Dictionary:
 	var ns = state.duplicate()
 	match action:

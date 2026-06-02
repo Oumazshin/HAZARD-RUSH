@@ -136,7 +136,7 @@ func _build_ui() -> void:
 
 	# ── Controls hint ─────────────────────────────────────────────────────────
 	var controls := Label.new()
-	controls.text = "A / D = Sprint     SPACE = Jump     S = Slide"
+	controls.text = "A / D = Sprint    SPACE = Jump    SHIFT = Slide    F = Sabotage"
 	controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	controls.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_apply_font(controls, 12, Color(0.70, 0.70, 0.70))

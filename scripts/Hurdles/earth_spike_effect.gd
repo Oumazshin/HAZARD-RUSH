@@ -106,8 +106,14 @@ func _build_and_play() -> void:
 
 func _on_body_entered(body: Node) -> void:
 	if body.has_method("trigger_momentum_crash"):
-		body.trigger_momentum_crash()
-		print("[EarthSpikeEffect] Hit — trigger_momentum_crash()")
+		# FIX: Original called trigger_momentum_crash() with no argument, so
+		# is_sabotage defaulted to false. Since this fires BEFORE the player's
+		# own _on_hitbox_area_entered (which carries the correct sabotage flag),
+		# is_stumbling was already true when the second call arrived — meaning
+		# ai_sabotage_hits was never incremented.
+		# Passing true here ensures the flag is set on the very first call.
+		body.trigger_momentum_crash(true)
+		print("[EarthSpikeEffect] Hit — trigger_momentum_crash(true)")
 	elif body.has_method("_trigger_stumble"):
 		body._trigger_stumble()
 		print("[EarthSpikeEffect] Hit — _trigger_stumble()")

@@ -3,8 +3,6 @@ extends Area2D
 func _ready() -> void:
 	if not body_entered.is_connected(_on_body_entered):
 		body_entered.connect(_on_body_entered)
-	# The Goal's own Sprite2D is empty, so add a visible finish-line banner.
-	# goal.tscn is instanced in both lanes, so this makes both finish lines show.
 	if not has_node("FinishLineVisual"):
 		var fl: Node2D = preload("res://scripts/Lane/finish_line.gd").new()
 		fl.name = "FinishLineVisual"
@@ -20,7 +18,11 @@ func _on_body_entered(body: Node2D) -> void:
 	if not GameState.is_racing():
 		return
 
-	GameState.winner     = "Player" if is_player else "AI"
+	# FIX: Original used "Player" (capital P) and "AI" (capital letters).
+	# results_screen.gd matches against lowercase "player" / "ai", so a
+	# finish-line win by the human player always fell through to the tie
+	# branch and displayed "IT'S A TIE!" instead of "PLAYER WINS!".
+	GameState.winner     = "player" if is_player else "ai"
 	GameState.win_reason = "finish_line"
 
 	print("[Goal] winner → ", GameState.winner)
