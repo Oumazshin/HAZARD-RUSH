@@ -2,9 +2,6 @@
 .godot/
 *.translation
 
-# Export configuration (contains absolute machine paths and signing credentials)
-export_presets.cfg
-
 # Build output — distributed via GitHub Releases, not committed to repository
 builds/
 exports/
