@@ -9,16 +9,6 @@ exports/
 *.pck
 *.zip
 
-# GDExtension and C++ build artifacts
-bin/*
-!bin/*.gdextension
-*.o
-*.obj
-*.os
-*.dylib
-*.dll
-*.so
-
 # Editor and IDE metadata
 .vscode/
 .idea/
