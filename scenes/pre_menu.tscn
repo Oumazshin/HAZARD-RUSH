@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://doruarhp4tdij"]
+
+[ext_resource type="Script" uid="uid://rsd8uuo2etcr" path="res://scripts/pre_menu.gd" id="1"]
+
+[node name="PreMenu" type="CanvasLayer" unique_id=24026942]
+layer = 10
+script = ExtResource("1")

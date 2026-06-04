@@ -8,6 +8,9 @@ const ENTRY_TEX      := "res://assets/new/Entry.png"
 const LOADING_TEX    := "res://assets/new/LOADING_CYCLE.png"
 const LOGO_PATH      := "res://assets/Logo/Logo.svg"
 
+# Path to the pre-menu overlay scene
+const PRE_MENU_SCENE := "res://scenes/pre_menu.tscn"
+
 var _font: Font = null
 
 func _ready() -> void:
@@ -16,6 +19,22 @@ func _ready() -> void:
 		_font = load(FONT)
 	GameState.reset()
 	_build_ui()
+	# ── Open the pre-game Intro / Credits / Disclaimer overlay on launch ──────
+	# The overlay is a CanvasLayer (layer 10) added on top of this scene.
+	# It is self-removing: the player clicks CONTINUE and it calls queue_free().
+	# It can be reopened at any time via the INFO button added in _build_ui().
+	_open_pre_menu()
+
+
+# ── Pre-menu open / reopen ────────────────────────────────────────────────────
+
+## Opens the overlay only if it is not already open.
+## The instantiated scene's root node is named "PreMenu" (defined in pre_menu.tscn),
+## so has_node("PreMenu") reliably detects whether it is currently active.
+func _open_pre_menu() -> void:
+	if not has_node("PreMenu"):
+		add_child(preload(PRE_MENU_SCENE).instantiate())
+
 
 func _build_ui() -> void:
 	# ── Background ────────────────────────────────────────────────────────────
@@ -150,29 +169,62 @@ func _build_ui() -> void:
 	vbox.add_child(quit_btn)
 
 	# ── Floating logo ─────────────────────────────────────────────────────────
-	# Added LAST so it renders on top of all other children.
-	# Uses PRESET_CENTER_TOP anchoring so it is always horizontally centered
-	# and pinned to the top of the screen regardless of window size.
-	# MOUSE_FILTER_IGNORE means it receives no mouse events and never blocks
-	# the buttons beneath it.
-	# Because it is NOT inside the VBox, it has zero effect on the layout of
-	# the menu items — they center freely as if the logo does not exist.
 	if ResourceLoader.exists(LOGO_PATH):
 		var logo_rect                 := TextureRect.new()
 		logo_rect.texture             = load(LOGO_PATH) as Texture2D
 		logo_rect.stretch_mode        = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		logo_rect.expand_mode         = TextureRect.EXPAND_IGNORE_SIZE
 		logo_rect.mouse_filter        = Control.MOUSE_FILTER_IGNORE
-		# Pin horizontally to screen center, vertically to screen top
 		logo_rect.set_anchors_preset(Control.PRESET_CENTER_TOP)
 		logo_rect.grow_horizontal     = Control.GROW_DIRECTION_BOTH
 		logo_rect.grow_vertical       = Control.GROW_DIRECTION_END
-		# 420 px wide (±210 from center), 220 px tall, 12 px from top edge
 		logo_rect.offset_left         = -210.0
 		logo_rect.offset_right        = 210.0
 		logo_rect.offset_top          = 12.0
 		logo_rect.offset_bottom       = 232.0
 		add_child(logo_rect)
+
+	# ── INFO button — bottom-right corner, reopens the pre-menu overlay ───────
+	# Floats independently from the VBox so it never disrupts the menu layout.
+	# Anchored to PRESET_BOTTOM_RIGHT so it stays in the corner at any
+	# window size.  Clicking it calls _open_pre_menu() which guards against
+	# opening a second copy if one is already showing.
+	var info_btn := Button.new()
+	info_btn.text = "  \u2139  DISCLAIMER  "   # ℹ INFO
+	info_btn.focus_mode = Control.FOCUS_NONE
+	info_btn.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	info_btn.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	info_btn.grow_vertical   = Control.GROW_DIRECTION_BEGIN
+	# Position: 16 px from right edge, 16 px from bottom edge
+	info_btn.offset_left   = -130.0
+	info_btn.offset_right  = -16.0
+	info_btn.offset_top    = -52.0
+	info_btn.offset_bottom = -16.0
+	_apply_font(info_btn, 13, Color(0.957, 0.769, 0.188))   # gold text
+	# Style: dark semi-transparent with gold border
+	var s_norm := StyleBoxFlat.new()
+	s_norm.bg_color = Color(0.039, 0.055, 0.102, 0.85)
+	s_norm.border_color = Color(0.957, 0.769, 0.188, 0.70)
+	s_norm.set_border_width_all(1)
+	s_norm.set_corner_radius_all(6)
+	var s_hover := StyleBoxFlat.new()
+	s_hover.bg_color = Color(0.188, 0.255, 0.376, 0.95)
+	s_hover.border_color = Color(0.957, 0.769, 0.188, 1.0)
+	s_hover.set_border_width_all(1)
+	s_hover.set_corner_radius_all(6)
+	var s_press := StyleBoxFlat.new()
+	s_press.bg_color = Color(0.039, 0.055, 0.102, 1.0)
+	s_press.border_color = Color(0.957, 0.769, 0.188, 1.0)
+	s_press.set_border_width_all(1)
+	s_press.set_corner_radius_all(6)
+	info_btn.add_theme_stylebox_override("normal",  s_norm)
+	info_btn.add_theme_stylebox_override("hover",   s_hover)
+	info_btn.add_theme_stylebox_override("pressed", s_press)
+	info_btn.add_theme_color_override("font_hover_color",   Color.WHITE)
+	info_btn.add_theme_color_override("font_pressed_color", Color.WHITE)
+	info_btn.pressed.connect(_open_pre_menu)
+	add_child(info_btn)
+
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 func _apply_font(node: Control, font_size: int, color: Color) -> void:
