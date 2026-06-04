@@ -72,6 +72,28 @@ The AI opponent uses **four classical search algorithms**, each assigned to a sp
 | **3** | **Minimax + Alpha-Beta Pruning** | Event-driven | Adversarial sabotage decision — `ACTIVATE` or `PASS` — at each trigger zone. 4-ply game tree; MAX = AI, MIN = Player. |
 
 
+## 🕹️ How to Play
+
+**1. Build Momentum (KEI)**
+To run, you must rhythmically alternate between the **Sprint Left** and **Sprint Right** keys. A steady, consistent rhythm increases your Kinetic Exertion Indicator (KEI) and maximizes your speed. Mashing a single key or breaking the rhythm will penalize your momentum and slow you down.
+
+**2. Clear the Hurdles**
+As you race across the 110-meter course, you will encounter two types of static obstacles:
+- **High Hurdles:** Time your **Jump** to leap over them safely.
+- **Low Obstacles (Saws):** Hold the **Slide** key to pass underneath them.
+*Failing to clear an obstacle results in a severe KEI penalty and a temporary stumble state.*
+
+**3. Utilize Power-Ups**
+Run into floating fruits scattered across the track to gain the upper hand. These can grant you shields, speed boosts, double jumps, or apply negative status effects to the AI opponent.
+
+**4. Sabotage Your Opponent**
+When you acquire a sabotage charge (via Orange power-ups), press the **Sabotage** key to spawn a devastating Earth Spike or Fireball in the AI's lane, forcing them to react perfectly or suffer a massive momentum crash.
+
+**5. Cross the Finish Line**
+Maintain your speed and beat the AI to the 110-meter mark before the 60-second timer expires!
+
+---
+
 ## 🎮 Controls
 
 | Action | Key(s) | Timing Constraint | Effect |
@@ -79,8 +101,8 @@ The AI opponent uses **four classical search algorithms**, each assigned to a sp
 | **Sprint Left** | `A` | Alternate with D; max 200ms gap | Advances rhythm counter; increases KEI if correctly alternated |
 | **Sprint Right** | `D` | Alternate with A; max 200ms gap | Advances rhythm counter; increases KEI if correctly alternated |
 | **Jump** | `Space` / `↑` | 0.40s to 0.15s before contact | Initiates jump arc; clears High Hurdles |
-| **Slide** | `↓` / `S` | Hold for at least 0.30s | Lowers hitbox; passes under Low Obstacles |
-| **Conserve** | `Left Shift` | Hold; releases automatically | Caps speed at 60% of peak; reduces KEI decay to 0.003/frame |
+| **Slide** | `Shift` / `↓` / `S` | Hold for at least 0.30s | Lowers hitbox; passes under Low Obstacles |
+| **Conserve** | `C` / `Ctrl` | Hold; releases automatically | Caps speed at 60% of peak; reduces KEI decay to 0.003/frame |
 | **Sabotage** | `F` / `Right Shift` | Within 0.30s trigger window | Spawns a Sabotage Hazard in the opponent's lane |
 
 ---
