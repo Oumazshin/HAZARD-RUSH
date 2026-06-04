@@ -1,6 +1,16 @@
-# Godot 4+ specific ignores
+# Godot 4+ generated cache and metadata
 .godot/
 *.translation
+
+# Export configuration (contains absolute machine paths and signing credentials)
+export_presets.cfg
+
+# Build output — distributed via GitHub Releases, not committed to repository
+builds/
+exports/
+*.exe
+*.pck
+*.zip
 
 # GDExtension and C++ build artifacts
 bin/*
@@ -12,6 +22,17 @@ bin/*
 *.dll
 *.so
 
-# OS specific
+# Editor and IDE metadata
+.vscode/
+.idea/
+*.tmp
+*.bak
+*.swp
+
+# OS metadata
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+logs/
